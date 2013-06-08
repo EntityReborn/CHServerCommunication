@@ -9,7 +9,7 @@ import org.zeromq.ZMQ;
 import org.zeromq.ZMQ.Context;
 
 public class Subscriber extends NodePoint implements Runnable {
-    private int subcount = 0;
+    private static int subcount = 0;
     
     public static interface MessageCallback {
         public void process(String channel, String serverID, String message);
@@ -37,10 +37,6 @@ public class Subscriber extends NodePoint implements Runnable {
     private String sanitizeChannel(String channel) {
         String chan = channel.trim();
         
-        if (chan.contains("\0")) {
-            throw new IllegalArgumentException("Cannot [un]subscribe to channels with \\0 in them!");
-        }
-        
         if (!channel.equals("*")) {
             chan += '\0';
         } else {
@@ -50,12 +46,20 @@ public class Subscriber extends NodePoint implements Runnable {
         return chan;
     }
     
-    public void subscribe(String channel) {
+    public void subscribe(String channel) throws Exceptions.InvalidChannelException {
+        if (!Util.isValidChannel(channel)) {
+            throw new Exceptions.InvalidChannelException(channel);
+        }
+        
         String chan = sanitizeChannel(channel);
         socket.subscribe(chan.getBytes());
     }
     
-    public void unsubscribe(String channel) {
+    public void unsubscribe(String channel) throws Exceptions.InvalidChannelException {
+        if (!Util.isValidChannel(channel)) {
+            throw new Exceptions.InvalidChannelException(channel);
+        }
+        
         String chan = sanitizeChannel(channel);
         socket.unsubscribe(chan.getBytes());
     }
@@ -110,7 +114,7 @@ public class Subscriber extends NodePoint implements Runnable {
         cleanup();
     }
         
-    public static void main (String[] args) throws InterruptedException {
+    public static void main (String[] args) throws InterruptedException, Exceptions.InvalidChannelException {
         Context context = ZMQ.context(1);
         
         Subscriber sub = new Subscriber();

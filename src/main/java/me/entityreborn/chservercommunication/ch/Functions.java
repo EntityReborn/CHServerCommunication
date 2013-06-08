@@ -14,6 +14,10 @@ import com.laytonsmith.core.environments.Environment;
 import com.laytonsmith.core.exceptions.ConfigRuntimeException;
 import com.laytonsmith.core.functions.AbstractFunction;
 import com.laytonsmith.core.functions.Exceptions;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import me.entityreborn.chservercommunication.Exceptions.InvalidChannelException;
+import me.entityreborn.chservercommunication.Exceptions.InvalidNameException;
 import me.entityreborn.chservercommunication.NodePoint;
 import me.entityreborn.chservercommunication.Publisher;
 import me.entityreborn.chservercommunication.Subscriber;
@@ -58,7 +62,7 @@ public class Functions {
 
                 if (!stype.equals("PUB") && !stype.equals("SUB")) {
                     throw new ConfigRuntimeException("You must specify PUB or SUB"
-                            + " for comm_disconnect's second argument!", t);
+                            + " for comm_listen's third argument!", t);
                 }
 
                 if (stype.equals("SUB")) {
@@ -66,7 +70,14 @@ public class Functions {
                 }
             }
             
-            NodePoint node = Tracking.getOrCreate(type, name);
+            NodePoint node;
+            
+            try {
+                node = Tracking.getOrCreate(type, name);
+            } catch (InvalidNameException ex) {
+                throw new ConfigRuntimeException("Invalid name " + name + 
+                        " given to comm_listen!", t);
+            }
             
             node.listen(endpoint);
             
@@ -78,7 +89,7 @@ public class Functions {
         }
 
         public Integer[] numArgs() {
-            return new Integer[]{3};
+            return new Integer[]{2, 3};
         }
 
         public String docs() {
@@ -109,7 +120,14 @@ public class Functions {
                 }
             }
             
-            NodePoint node = Tracking.getOrCreate(type, name);
+            NodePoint node;
+            
+            try {
+                node = Tracking.getOrCreate(type, name);
+            } catch (InvalidNameException ex) {
+                throw new ConfigRuntimeException("Invalid name " + name + 
+                        " given to comm_connect!", t);
+            }
             
             node.connect(endpoint);
             
@@ -121,7 +139,7 @@ public class Functions {
         }
 
         public Integer[] numArgs() {
-            return new Integer[]{3};
+            return new Integer[]{2, 3};
         }
 
         public String docs() {
@@ -152,10 +170,17 @@ public class Functions {
                 }
             }
             
-            NodePoint node = Tracking.getSub(name);
+            NodePoint node;
             
-            if (type == ZMQ.PUB) {
-                node = Tracking.getPub(name);
+            try {
+                if (type == ZMQ.PUB) {
+                    node = Tracking.getPub(name);
+                } else {
+                    node = Tracking.getSub(name);
+                }
+            } catch (InvalidNameException ex) {
+                throw new ConfigRuntimeException("Invalid name " + name + 
+                        " given to comm_disconnect!", t);
             }
             
             if (node == null) {
@@ -202,11 +227,18 @@ public class Functions {
                 }
             }
             
-            boolean found = Tracking.close(name, type);
+            boolean found;
+            
+            try {
+                found = Tracking.close(name, type);
+            } catch (InvalidNameException ex) {
+                throw new ConfigRuntimeException("Invalid name " + name + 
+                        " given to comm_close!", t);
+            }
             
             if (!found) {
                 throw new ConfigRuntimeException("Unknown " + name + " "
-                        + " given to comm_disconnect!", t);
+                        + " given to comm_close!", t);
             }
             
             return new CVoid(t);
@@ -234,14 +266,25 @@ public class Functions {
             String name = args[0].val();
             String channel = args[1].val();
 
-            NodePoint node = Tracking.getSub(name);
+            NodePoint node;
+            
+            try {
+                node = Tracking.getSub(name);
+            } catch (InvalidNameException ex) {
+                throw new ConfigRuntimeException("Invalid name " + name + 
+                        " given to comm_subscribe!", t);
+            }
             
             if (node == null) {
                 throw new ConfigRuntimeException("Unknown SUB " + name + 
                         " given to comm_subscribe!", t);
             }
-            
-            ((Subscriber)node).subscribe(channel);
+            try {
+                ((Subscriber)node).subscribe(channel);
+            } catch (InvalidChannelException ex) {
+                throw new ConfigRuntimeException("Invalid channel " + channel + 
+                        " given to comm_subscribe!", t);
+            }
             
             return new CVoid(t);
         }
@@ -266,14 +309,25 @@ public class Functions {
             String name = args[0].val();
             String channel = args[1].val();
 
-            NodePoint node = Tracking.getSub(name);
+            NodePoint node;
+            
+            try {
+                node = Tracking.getSub(name);
+            } catch (me.entityreborn.chservercommunication.Exceptions.InvalidNameException ex) {
+                throw new ConfigRuntimeException("Invalid name " + name + 
+                        " given to comm_unsubscribe!", t);
+            }
             
             if (node == null) {
                 throw new ConfigRuntimeException("Unknown SUB " + name + 
                         " given to comm_unsubscribe!", t);
             }
-            
-            ((Subscriber)node).unsubscribe(channel);
+            try {
+                ((Subscriber)node).unsubscribe(channel);
+            } catch (InvalidChannelException ex) {
+                throw new ConfigRuntimeException("Invalid channel " + channel + 
+                        " given to comm_subscribe!", t);
+            }
             
             return new CVoid(t);
         }
@@ -298,15 +352,30 @@ public class Functions {
             String name = args[0].val();
             String channel = args[1].val();
             String message = args[2].val();
-
-            NodePoint node = Tracking.getPub(name);
+            String origpub = null;
             
-            if (node == null) {
-                throw new ConfigRuntimeException("Unknown PUB " + name + 
+            if (args.length == 4) {
+                origpub = args[3].val();
+            }
+
+            NodePoint node;
+            
+            try {
+                node = Tracking.getPub(name);
+            
+                if (node == null) {
+                    throw new ConfigRuntimeException("Unknown PUB " + name + 
+                            " given to comm_publish!", t);
+                }
+                
+                ((Publisher)node).publish(channel, message, origpub);
+            } catch (InvalidChannelException ex) {
+                throw new ConfigRuntimeException("Invalid channel " + channel + 
+                        " given to comm_publish!", t);
+            } catch (InvalidNameException ex) {
+                throw new ConfigRuntimeException("Invalid name " + name + 
                         " given to comm_publish!", t);
             }
-            
-            ((Publisher)node).publish(channel, message);
             
             return new CVoid(t);
         }
@@ -316,12 +385,14 @@ public class Functions {
         }
 
         public Integer[] numArgs() {
-            return new Integer[]{3};
+            return new Integer[]{3, 4};
         }
 
         public String docs() {
-            return "void {name, channel, message} Publish <message> to <channel>"
-                    + " of PUB with name <name>.";
+            return "void {name, channel, message[, originalid]} Publish <message>"
+                    + " to <channel> of PUB with name <name>. if originalid is"
+                    + " given, that publisher's name will be used instead of"
+                    + " this one.";
         }
     }
 }

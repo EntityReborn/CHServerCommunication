@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import me.entityreborn.chservercommunication.Exceptions.InvalidNameException;
 import me.entityreborn.chservercommunication.Subscriber.MessageCallback;
 import me.entityreborn.chservercommunication.ch.Events;
 import org.zeromq.ZMQ;
@@ -58,24 +59,44 @@ public class Tracking {
     private static Map<String, Subscriber> subscribers = new HashMap<String, Subscriber>();
     public static Context context;
     
-    public static boolean hasPublisher(String name) {
+    public static boolean hasPublisher(String name) throws InvalidNameException {
+        if (!Util.isValidName(name)) {
+            throw new InvalidNameException(name);
+        }
+        
         return publishers.containsKey(name);
     }
     
-    public static boolean hasSubscriber(String endpoint) {
-        return subscribers.containsKey(endpoint);
+    public static boolean hasSubscriber(String name) throws InvalidNameException {
+        if (!Util.isValidName(name)) {
+            throw new InvalidNameException(name);
+        }
+        
+        return subscribers.containsKey(name);
     }
     
-    public static Publisher getPub(String name) {
+    public static Publisher getPub(String name) throws InvalidNameException {
+        if (!Util.isValidName(name)) {
+            throw new InvalidNameException(name);
+        }
+        
         return publishers.get(name);
     }
     
-    public static Subscriber getSub(String name) {
+    public static Subscriber getSub(String name) throws InvalidNameException {
+        if (!Util.isValidName(name)) {
+            throw new InvalidNameException(name);
+        }
+        
         return subscribers.get(name);
     }
     
-    public static NodePoint getOrCreate(int type, String name) {
+    public static NodePoint getOrCreate(int type, String name) throws InvalidNameException {
         NodePoint retn = null;
+        
+        if (!Util.isValidName(name)) {
+            throw new InvalidNameException(name);
+        }
         
         if (type == ZMQ.PUB) {
             retn = getPub(name);
@@ -113,8 +134,12 @@ public class Tracking {
         return retn;
     }
 
-    public static boolean close(String name, int type) {
+    public static boolean close(String name, int type) throws InvalidNameException {
         NodePoint node = null;
+        
+        if (!Util.isValidName(name)) {
+            throw new InvalidNameException(name);
+        }
         
         if (type == ZMQ.PUB) {
             node = publishers.remove(name);

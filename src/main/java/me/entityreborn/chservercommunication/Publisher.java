@@ -2,6 +2,8 @@ package me.entityreborn.chservercommunication;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import me.entityreborn.chservercommunication.Exceptions.InvalidChannelException;
+import me.entityreborn.chservercommunication.Exceptions.InvalidNameException;
 
 import org.zeromq.ZMQ;
 import org.zeromq.ZMQ.Context;
@@ -25,14 +27,14 @@ public class Publisher extends NodePoint implements Runnable {
         socket.setIdentity(publisherId.getBytes());
     }
     
-    public void publish(String channel, String string) {
+    public void publish(String channel, String message) throws InvalidChannelException {
         String chan = channel.trim();
         
-        if (chan.contains("\0")) {
-            throw new IllegalArgumentException("Cannot publish to channels with \\0 in them!");
+        if(!Util.isValidChannel(channel)) {
+            throw new InvalidChannelException(channel);
         }
         
-        String tosend = chan + '\0' + publisherId + '\0' + string;
+        String tosend = chan + '\0' + publisherId + '\0' + message;
         queue.add(tosend);
     }
     
@@ -55,7 +57,7 @@ public class Publisher extends NodePoint implements Runnable {
         cleanup();
     }
     
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) throws InterruptedException, InvalidChannelException {
         Context context = ZMQ.context(1);
         
         Publisher pub = new Publisher("weather");
@@ -73,5 +75,20 @@ public class Publisher extends NodePoint implements Runnable {
         pub.stop();
         
         context.term();
+    }
+
+    public void publish(String channel, String message, String origpub) throws InvalidNameException, InvalidChannelException {
+        String chan = channel.trim();
+        
+        if(!Util.isValidName(origpub)) {
+            throw new InvalidNameException(origpub);
+        }
+        
+        if(!Util.isValidChannel(channel)) {
+            throw new InvalidChannelException(channel);
+        }
+        
+        String tosend = chan + '\0' + origpub + '\0' + message;
+        queue.add(tosend);
     }
 }

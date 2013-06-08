@@ -38,7 +38,7 @@ public class Functions {
         }
 
         public Boolean runAsync() {
-            return false;
+            return null;
         }
 
         public CHVersion since() {

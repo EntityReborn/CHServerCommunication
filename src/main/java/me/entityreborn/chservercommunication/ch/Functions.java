@@ -14,8 +14,6 @@ import com.laytonsmith.core.environments.Environment;
 import com.laytonsmith.core.exceptions.ConfigRuntimeException;
 import com.laytonsmith.core.functions.AbstractFunction;
 import com.laytonsmith.core.functions.Exceptions;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import me.entityreborn.chservercommunication.Exceptions.InvalidChannelException;
 import me.entityreborn.chservercommunication.Exceptions.InvalidNameException;
 import me.entityreborn.chservercommunication.NodePoint;

@@ -15,6 +15,7 @@ import com.laytonsmith.core.events.AbstractEvent;
 import com.laytonsmith.core.events.BindableEvent;
 import com.laytonsmith.core.events.Driver;
 import com.laytonsmith.core.events.EventUtils;
+import com.laytonsmith.core.events.Prefilters;
 import com.laytonsmith.core.exceptions.EventException;
 import com.laytonsmith.core.exceptions.PrefilterNonMatchException;
 import java.util.Map;
@@ -24,7 +25,7 @@ import java.util.Map;
  * @author import
  */
 public class Events {
-    
+
     private static void fireEvent(final BindableEvent event, final String name) {
         StaticLayer.GetConvertor().runOnMainThreadLater(new Runnable() {
             public void run() {
@@ -37,7 +38,7 @@ public class Events {
         RecvEvent event = new RecvEvent(channel, id, message);
         fireEvent(event, "comm_received");
     }
-    
+
     private static class RecvEvent implements BindableEvent {
 
         private String channel;
@@ -74,18 +75,25 @@ public class Events {
         }
 
         public String docs() {
-            return "{} "
+            return "{channel: <string match> | publisherid: <string match>} "
                     + "Fired when a message is received by a SUB socket. "
-                    + "{channel: The channel this message was directed to | " /*"{player: The player who clicked | viewers: everyone looking in this inventory | "*/
+                    + "{channel: The channel this message was directed to | "
                     + "publisherid: The name of the publisher who sent this message | "
                     + "message: The message itself} "
-                    + "{} "
-                    + "{} ";
+                    + "{channel|publisherid}";
         }
 
         public boolean matches(Map<String, Construct> prefilter, BindableEvent event)
                 throws PrefilterNonMatchException {
-            return true;
+            if (event instanceof RecvEvent) {
+                RecvEvent e = (RecvEvent)event;
+                Prefilters.match(prefilter, "channel", e.getChannel(), Prefilters.PrefilterType.STRING_MATCH);
+                Prefilters.match(prefilter, "publisherid", e.getId(), Prefilters.PrefilterType.STRING_MATCH);
+
+                return true;
+            }
+            
+            return false;
         }
 
         public BindableEvent convert(CArray manualObject) {
@@ -96,7 +104,7 @@ public class Events {
                 throws EventException {
             if (event instanceof RecvEvent) {
                 RecvEvent e = (RecvEvent) event;
-                
+
                 Map<String, Construct> map = evaluate_helper(event);
 
                 map.put("channel", new CString(e.getChannel(), Target.UNKNOWN));

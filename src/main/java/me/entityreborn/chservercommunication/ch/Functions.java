@@ -101,7 +101,7 @@ public class Functions {
 
                 if (!stype.equals("PUB") && !stype.equals("SUB")) {
                     throw new ConfigRuntimeException("You must specify PUB or SUB"
-                            + " for comm_disconnect's second argument!", t);
+                            + " for comm_disconnect's third argument!", t);
                 }
 
                 if (stype.equals("PUB")) {
@@ -144,7 +144,7 @@ public class Functions {
 
                 if (!stype.equals("PUB") && !stype.equals("SUB")) {
                     throw new ConfigRuntimeException("You must specify PUB or SUB"
-                            + " for comm_disconnect's second argument!", t);
+                            + " for comm_disconnect's third argument!", t);
                 }
 
                 if (stype.equals("PUB")) {
@@ -194,7 +194,7 @@ public class Functions {
 
                 if (!stype.equals("PUB") && !stype.equals("SUB")) {
                     throw new ConfigRuntimeException("You must specify PUB or SUB"
-                            + " for comm_disconnect's second argument!", t);
+                            + " for comm_close's second argument!", t);
                 }
 
                 if (stype.equals("PUB")) {

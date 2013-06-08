@@ -35,7 +35,7 @@ public class Events {
 
     public static void fireReceived(String channel, String id, String message) {
         RecvEvent event = new RecvEvent(channel, id, message);
-        fireEvent(event, "srvcom_received");
+        fireEvent(event, "comm_received");
     }
     
     private static class RecvEvent implements BindableEvent {
@@ -74,7 +74,13 @@ public class Events {
         }
 
         public String docs() {
-            return "";
+            return "{} "
+                    + "Fired when a message is received by a SUB socket. "
+                    + "{channel: The channel this message was directed to | " /*"{player: The player who clicked | viewers: everyone looking in this inventory | "*/
+                    + "publisherid: The name of the publisher who sent this message | "
+                    + "message: The message itself} "
+                    + "{} "
+                    + "{} ";
         }
 
         public boolean matches(Map<String, Construct> prefilter, BindableEvent event)
@@ -94,7 +100,7 @@ public class Events {
                 Map<String, Construct> map = evaluate_helper(event);
 
                 map.put("channel", new CString(e.getChannel(), Target.UNKNOWN));
-                map.put("id", new CString(e.getId(), Target.UNKNOWN));
+                map.put("publisherid", new CString(e.getId(), Target.UNKNOWN));
                 map.put("message", new CString(e.getMessage(), Target.UNKNOWN));
 
                 return map;

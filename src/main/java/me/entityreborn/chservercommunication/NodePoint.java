@@ -27,8 +27,6 @@ public class NodePoint {
         } catch (Exception e) {
             Logger.getLogger(NodePoint.class.getName()).log(Level.WARNING, "Exception while closing node:", e);
         }
-        
-        System.out.println("Closed!");
     }
     
     public boolean isAlive() {

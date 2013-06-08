@@ -47,19 +47,23 @@ public class Functions {
     @api(environments = {CommandHelperEnvironment.class})
     public static class listen extends CommFunc {
 
-        public Construct exec(Target t, Environment environment, Construct... args) throws ConfigRuntimeException {
+        public Construct exec(Target t, Environment environment, 
+                Construct... args) throws ConfigRuntimeException {
             String name = args[0].val();
-            String stype = args[1].val().toUpperCase();
-            String endpoint = args[2].val();
-            
+            String endpoint = args[1].val();
             int type = ZMQ.PUB;
             
-            if (!stype.equals("PUB") && !stype.equals("SUB")) {
-                throw new ConfigRuntimeException("You must specify PUB or SUB for comm_listen's second argument!", t);
-            }
-            
-            if (stype.equals("SUB")) {
-                type = ZMQ.SUB;
+            if (args.length == 3) {
+                String stype = args[2].val().toUpperCase();
+
+                if (!stype.equals("PUB") && !stype.equals("SUB")) {
+                    throw new ConfigRuntimeException("You must specify PUB or SUB"
+                            + " for comm_disconnect's second argument!", t);
+                }
+
+                if (stype.equals("SUB")) {
+                    type = ZMQ.SUB;
+                }
             }
             
             NodePoint node = Tracking.getOrCreate(type, name);
@@ -78,25 +82,31 @@ public class Functions {
         }
 
         public String docs() {
-            return "void {name, type, endpoint} Listen. Type can be PUB or SUB.";
+            return "void {name, endpoint[, type]} Listen. Automatically creates the"
+                    + " the socket if it doesn't exist already."
+                    + " Type can be PUB or SUB, but defaults to PUB.";
         }
     }
     
     @api(environments = {CommandHelperEnvironment.class})
     public static class connect extends CommFunc {
-        public Construct exec(Target t, Environment environment, Construct... args) throws ConfigRuntimeException {
+        public Construct exec(Target t, Environment environment, 
+                Construct... args) throws ConfigRuntimeException {
             String name = args[0].val();
-            String stype = args[1].val().toUpperCase();
-            String endpoint = args[2].val();
-            
+            String endpoint = args[1].val();
             int type = ZMQ.SUB;
             
-            if (!stype.equals("PUB") && !stype.equals("SUB")) {
-                throw new ConfigRuntimeException("You must specify PUB or SUB for comm_connect's second argument!", t);
-            }
-            
-            if (stype.equals("PUB")) {
-                type = ZMQ.PUB;
+            if (args.length == 3) {
+                String stype = args[2].val().toUpperCase();
+
+                if (!stype.equals("PUB") && !stype.equals("SUB")) {
+                    throw new ConfigRuntimeException("You must specify PUB or SUB"
+                            + " for comm_disconnect's second argument!", t);
+                }
+
+                if (stype.equals("PUB")) {
+                    type = ZMQ.PUB;
+                }
             }
             
             NodePoint node = Tracking.getOrCreate(type, name);
@@ -115,26 +125,31 @@ public class Functions {
         }
 
         public String docs() {
-            return "void {name, type, endpoint} Connect. Type can be PUB or SUB.";
+            return "void {name, endpoint[, type]} Connect. Automatically creates the"
+                    + " the socket if it doesn't exist already. Type can be PUB "
+                    + "or SUB, but defaults to SUB.";
         }
     }
     
     @api(environments = {CommandHelperEnvironment.class})
     public static class disconnect extends CommFunc {
-        public Construct exec(Target t, Environment environment, Construct... args) throws ConfigRuntimeException {
+        public Construct exec(Target t, Environment environment, 
+                Construct... args) throws ConfigRuntimeException {
             String name = args[0].val();
-            String stype = args[1].val().toUpperCase();
-            String endpoint = args[2].val();
-            
+            String endpoint = args[1].val();
             int type = ZMQ.SUB;
             
-            if (!stype.equals("PUB") && !stype.equals("SUB")) {
-                throw new ConfigRuntimeException("You must specify PUB or SUB"
-                        + " for comm_disconnect's second argument!", t);
-            }
-            
-            if (stype.equals("PUB")) {
-                type = ZMQ.PUB;
+            if (args.length == 3) {
+                String stype = args[2].val().toUpperCase();
+
+                if (!stype.equals("PUB") && !stype.equals("SUB")) {
+                    throw new ConfigRuntimeException("You must specify PUB or SUB"
+                            + " for comm_disconnect's second argument!", t);
+                }
+
+                if (stype.equals("PUB")) {
+                    type = ZMQ.PUB;
+                }
             }
             
             NodePoint node = Tracking.getSub(name);
@@ -144,7 +159,7 @@ public class Functions {
             }
             
             if (node == null) {
-                throw new ConfigRuntimeException("Unknown " + stype + " "
+                throw new ConfigRuntimeException("Unknown " + name + " "
                         + " given to comm_disconnect!", t);
             }
             
@@ -158,24 +173,72 @@ public class Functions {
         }
 
         public Integer[] numArgs() {
-            return new Integer[]{3};
+            return new Integer[]{2, 3};
         }
 
         public String docs() {
-            return "void {name, type, endpoint} Disconnect. Type can be PUB or SUB.";
+            return "void {name, endpoint[, type]} Disconnect. Type can be PUB or"
+                    + " SUB, but defaults to SUB.";
+        }
+    }
+    
+    @api(environments = {CommandHelperEnvironment.class})
+    public static class close extends CommFunc {
+        public Construct exec(Target t, Environment environment, 
+                Construct... args) throws ConfigRuntimeException {
+            String name = args[0].val();
+            int type = ZMQ.SUB;
+            
+            if (args.length == 2) {
+                String stype = args[1].val().toUpperCase();
+
+                if (!stype.equals("PUB") && !stype.equals("SUB")) {
+                    throw new ConfigRuntimeException("You must specify PUB or SUB"
+                            + " for comm_disconnect's second argument!", t);
+                }
+
+                if (stype.equals("PUB")) {
+                    type = ZMQ.PUB;
+                }
+            }
+            
+            boolean found = Tracking.close(name, type);
+            
+            if (!found) {
+                throw new ConfigRuntimeException("Unknown " + name + " "
+                        + " given to comm_disconnect!", t);
+            }
+            
+            return new CVoid(t);
+        }
+
+        public String getName() {
+            return "comm_close";
+        }
+
+        public Integer[] numArgs() {
+            return new Integer[]{2};
+        }
+
+        public String docs() {
+            return "void {name, type} Close. Type can be PUB or SUB."
+                    + " This will disconnect any and all connections and binds"
+                    + " related to this name for this type.";
         }
     }
     
     @api(environments = {CommandHelperEnvironment.class})
     public static class subscribe extends CommFunc {
-        public Construct exec(Target t, Environment environment, Construct... args) throws ConfigRuntimeException {
+        public Construct exec(Target t, Environment environment, 
+                Construct... args) throws ConfigRuntimeException {
             String name = args[0].val();
             String channel = args[1].val();
 
             NodePoint node = Tracking.getSub(name);
             
             if (node == null) {
-                throw new ConfigRuntimeException("Unknown SUB " + name + " given to comm_subscribe!", t);
+                throw new ConfigRuntimeException("Unknown SUB " + name + 
+                        " given to comm_subscribe!", t);
             }
             
             ((Subscriber)node).subscribe(channel);
@@ -198,14 +261,16 @@ public class Functions {
     
     @api(environments = {CommandHelperEnvironment.class})
     public static class unsubscribe extends CommFunc {
-        public Construct exec(Target t, Environment environment, Construct... args) throws ConfigRuntimeException {
+        public Construct exec(Target t, Environment environment, 
+                Construct... args) throws ConfigRuntimeException {
             String name = args[0].val();
             String channel = args[1].val();
 
             NodePoint node = Tracking.getSub(name);
             
             if (node == null) {
-                throw new ConfigRuntimeException("Unknown SUB " + name + " given to comm_unsubscribe!", t);
+                throw new ConfigRuntimeException("Unknown SUB " + name + 
+                        " given to comm_unsubscribe!", t);
             }
             
             ((Subscriber)node).unsubscribe(channel);
@@ -228,7 +293,8 @@ public class Functions {
     
     @api(environments = {CommandHelperEnvironment.class})
     public static class publish extends CommFunc {
-        public Construct exec(Target t, Environment environment, Construct... args) throws ConfigRuntimeException {
+        public Construct exec(Target t, Environment environment, 
+                Construct... args) throws ConfigRuntimeException {
             String name = args[0].val();
             String channel = args[1].val();
             String message = args[2].val();
@@ -236,7 +302,8 @@ public class Functions {
             NodePoint node = Tracking.getPub(name);
             
             if (node == null) {
-                throw new ConfigRuntimeException("Unknown PUB " + name + " given to comm_publish!", t);
+                throw new ConfigRuntimeException("Unknown PUB " + name + 
+                        " given to comm_publish!", t);
             }
             
             ((Publisher)node).publish(channel, message);
@@ -253,7 +320,8 @@ public class Functions {
         }
 
         public String docs() {
-            return "void {name, channel, message} Publish <message> to <channel>.";
+            return "void {name, channel, message} Publish <message> to <channel>"
+                    + " of PUB with name <name>.";
         }
     }
 }

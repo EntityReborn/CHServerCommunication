@@ -51,32 +51,34 @@ public class Subscriber extends NodePoint implements Runnable {
     }
     
     public void subscribe(String channel) {
-        socket.subscribe(sanitizeChannel(channel).getBytes());
+        String chan = sanitizeChannel(channel);
+        socket.subscribe(chan.getBytes());
     }
     
     public void unsubscribe(String channel) {
-        socket.unsubscribe(sanitizeChannel(channel).getBytes());
+        String chan = sanitizeChannel(channel);
+        socket.unsubscribe(chan.getBytes());
     }
 
     public void run() {
         while (!Thread.currentThread().isInterrupted() && alive) {
-            String raw;
+            String recv;
             
             try {
                 // UGLY HACK WARNING!
                 // Unrecoverable exception from ZMQ, if we let recvStr
                 // block and the thread gets terminated.
-                raw = socket.recvStr(ZMQ.DONTWAIT);
+                String raw = socket.recvStr(ZMQ.DONTWAIT); 
                 
                 if (raw == null) {
                     Thread.sleep(5);
                     continue;
+                } else {
+                    recv = raw.trim();
                 }
             } catch (Exception e) {
                 break;
             }
-            
-            String recv = raw.trim();
             
             if (recv.isEmpty()) {
                 continue;

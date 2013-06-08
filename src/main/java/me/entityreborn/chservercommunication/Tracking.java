@@ -112,4 +112,22 @@ public class Tracking {
         
         return retn;
     }
+
+    public static boolean close(String name, int type) {
+        NodePoint node = null;
+        
+        if (type == ZMQ.PUB) {
+            node = publishers.remove(name);
+        } else if (type == ZMQ.SUB) {
+            node = subscribers.remove(name);
+        }
+        
+        if (node != null) {
+            node.stop();
+            
+            return true;
+        }
+        
+        return false;
+    }
 }

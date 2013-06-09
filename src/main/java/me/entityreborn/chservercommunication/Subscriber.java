@@ -9,8 +9,6 @@ import org.zeromq.ZMQ;
 import org.zeromq.ZMQ.Context;
 
 public class Subscriber extends NodePoint implements Runnable {
-    private static int subcount = 0;
-    
     public static interface MessageCallback {
         public void process(String subscriber, String channel, String publisher, String message);
     }
@@ -20,7 +18,7 @@ public class Subscriber extends NodePoint implements Runnable {
 
     public Subscriber(String name) {
         callbacks = Collections.synchronizedSet(new HashSet<MessageCallback>());
-        owningThread = new Thread(this, "subscriber-" + ++subcount);
+        owningThread = new Thread(this, "subscriber-" + name);
         this.name = name;
     }
     

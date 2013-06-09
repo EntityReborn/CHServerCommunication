@@ -24,6 +24,8 @@ public class NodePoint {
         try {
             socket.setLinger(1);
             socket.close();
+            
+            socket = null;
         } catch (Exception e) {
             Logger.getLogger(NodePoint.class.getName()).log(Level.WARNING, "Exception while closing node:", e);
         }

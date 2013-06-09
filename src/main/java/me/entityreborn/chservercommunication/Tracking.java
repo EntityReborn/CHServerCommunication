@@ -27,32 +27,32 @@ public class Tracking {
     
     @startup
     public static void startup() {
-        CHLog.GetLogger().i(CHLog.Tags.RUNTIME, "Loading CHServerCommunication...", Target.UNKNOWN);
+        System.out.println("Loading CHServerCommunication...");
         
         context = ZMQ.context(1);
         
-        CHLog.GetLogger().i(CHLog.Tags.RUNTIME, "CHServerCommunication loaded.", Target.UNKNOWN);
+        System.out.println("CHServerCommunication loaded.");
     }
     
     @shutdown
     public static void shutdown() {
-        CHLog.GetLogger().i(CHLog.Tags.RUNTIME, "Shutting down CHServerCommunication...", Target.UNKNOWN);
+        System.out.println("Unloading CHServerCommunication...");
         
         Set<String> keys = publishers.keySet();
-        for (String key : keys) {
+        for(String key : keys) { 
             Publisher pub = publishers.get(key);
             pub.stop();
-            
-            publishers.remove(key);
         }
+        
+        publishers.clear();
         
         keys = subscribers.keySet();
         for (String key : keys) {
-            Subscriber pub = subscribers.get(key);
-            pub.stop();
-            
-            subscribers.remove(key);
+            Subscriber sub = subscribers.get(key);
+            sub.stop();
         }
+        
+        subscribers.clear();
         
         try {
             Thread.sleep(1000);
@@ -61,8 +61,9 @@ public class Tracking {
         }
         
         context.term();
+        context = null;
         
-        CHLog.GetLogger().i(CHLog.Tags.RUNTIME, "CHServerCommunication shutdown.", Target.UNKNOWN);
+        System.out.println("CHServerCommunication unloaded.");
     }
     
     private static Map<String, Publisher> publishers = new HashMap<String, Publisher>();

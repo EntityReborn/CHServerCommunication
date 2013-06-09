@@ -58,12 +58,12 @@ public class Functions {
             if (args.length == 3) {
                 String stype = args[2].val().toUpperCase();
 
-                if (!stype.equals("PUB") && !stype.equals("SUB")) {
+                if (!"PUB".equals(stype) && !"SUB".equals(stype)) {
                     throw new ConfigRuntimeException("You must specify PUB or SUB"
                             + " for comm_listen's third argument!", Exceptions.ExceptionType.NotFoundException, t);
                 }
 
-                if (stype.equals("SUB")) {
+                if ("SUB".equals(stype)) {
                     type = ZMQ.SUB;
                 }
             }
@@ -108,12 +108,12 @@ public class Functions {
             if (args.length == 3) {
                 String stype = args[2].val().toUpperCase();
 
-                if (!stype.equals("PUB") && !stype.equals("SUB")) {
+                if (!"PUB".equals(stype) && !"SUB".equals(stype)) {
                     throw new ConfigRuntimeException("You must specify PUB or SUB"
-                            + " for comm_disconnect's third argument!", Exceptions.ExceptionType.NotFoundException, t);
+                            + " for comm_connect's third argument!", Exceptions.ExceptionType.NotFoundException, t);
                 }
 
-                if (stype.equals("PUB")) {
+                if ("PUB".equals(stype)) {
                     type = ZMQ.PUB;
                 }
             }
@@ -158,12 +158,12 @@ public class Functions {
             if (args.length == 3) {
                 String stype = args[2].val().toUpperCase();
 
-                if (!stype.equals("PUB") && !stype.equals("SUB")) {
+                if (!"PUB".equals(stype) && !"SUB".equals(stype)) {
                     throw new ConfigRuntimeException("You must specify PUB or SUB"
                             + " for comm_disconnect's third argument!", Exceptions.ExceptionType.NotFoundException, t);
                 }
 
-                if (stype.equals("PUB")) {
+                if ("PUB".equals(stype)) {
                     type = ZMQ.PUB;
                 }
             }
@@ -215,12 +215,12 @@ public class Functions {
             if (args.length == 2) {
                 String stype = args[1].val().toUpperCase();
 
-                if (!stype.equals("PUB") && !stype.equals("SUB")) {
+                if (!"PUB".equals(stype) && !"SUB".equals(stype)) {
                     throw new ConfigRuntimeException("You must specify PUB or SUB"
                             + " for comm_close's second argument!", Exceptions.ExceptionType.NotFoundException, t);
                 }
 
-                if (stype.equals("PUB")) {
+                if ("PUB".equals(stype)) {
                     type = ZMQ.PUB;
                 }
             }

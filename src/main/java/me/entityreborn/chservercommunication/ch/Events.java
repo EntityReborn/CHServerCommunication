@@ -87,6 +87,7 @@ public class Events {
                 throws PrefilterNonMatchException {
             if (event instanceof RecvEvent) {
                 RecvEvent e = (RecvEvent)event;
+                
                 Prefilters.match(prefilter, "channel", e.getChannel(), Prefilters.PrefilterType.STRING_MATCH);
                 Prefilters.match(prefilter, "publisherid", e.getId(), Prefilters.PrefilterType.STRING_MATCH);
 

@@ -10,7 +10,9 @@ package me.entityreborn.chservercommunication;
  */
 public class Util {
     public static boolean isValidChannel(String chan) {
-        if (chan.contains("\0")) {
+        if (chan == null) {
+            return false;
+        } else if (chan.contains("\0")) {
             return false;
         } else if (chan.isEmpty()){
             return false;
@@ -20,7 +22,9 @@ public class Util {
     }
     
     public static boolean isValidName(String name) {
-        if (name.contains("\0")) {
+        if (name == null) {
+            return false;
+        } else if (name.contains("\0")) {
             return false;
         } else if (name.isEmpty()){
             return false;

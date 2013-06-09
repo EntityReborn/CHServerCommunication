@@ -139,7 +139,7 @@ public class Tracking {
             }
         }
         
-        System.out.println(name + " was not created!");
+        CHLog.GetLogger().i(CHLog.Tags.RUNTIME, name + " was not created!", Target.UNKNOWN);
         
         return retn;
     }

@@ -6,6 +6,8 @@ package me.entityreborn.chservercommunication;
 
 import com.laytonsmith.annotations.shutdown;
 import com.laytonsmith.annotations.startup;
+import com.laytonsmith.core.CHLog;
+import com.laytonsmith.core.constructs.Target;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -25,11 +27,17 @@ public class Tracking {
     
     @startup
     public static void startup() {
+        CHLog.GetLogger().i(CHLog.Tags.RUNTIME, "Loading CHServerCommunication...", Target.UNKNOWN);
+        
         context = ZMQ.context(1);
+        
+        CHLog.GetLogger().i(CHLog.Tags.RUNTIME, "CHServerCommunication loaded.", Target.UNKNOWN);
     }
     
     @shutdown
     public static void shutdown() {
+        CHLog.GetLogger().i(CHLog.Tags.RUNTIME, "Shutting down CHServerCommunication...", Target.UNKNOWN);
+        
         Set<String> keys = publishers.keySet();
         for (String key : keys) {
             Publisher pub = publishers.get(key);
@@ -53,6 +61,8 @@ public class Tracking {
         }
         
         context.term();
+        
+        CHLog.GetLogger().i(CHLog.Tags.RUNTIME, "CHServerCommunication shutdown.", Target.UNKNOWN);
     }
     
     private static Map<String, Publisher> publishers = new HashMap<String, Publisher>();

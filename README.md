@@ -1,5 +1,7 @@
 #THIS EXTENSION IS HIGHLY EXPERIMENTAL.#
 
+**!!!! Requires CommandHelper 3.3.1 build #1520 or later !!!!**
+
 While some small amount of testing has been done to verify that SOMETHING works,
 we do not take any responsibility for any damages caused by the use of this
 extension until we deem it stable. Thank you.

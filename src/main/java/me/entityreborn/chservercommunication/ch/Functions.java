@@ -38,7 +38,7 @@ public class Functions {
         }
 
         public Boolean runAsync() {
-            return null;
+            return null; // Don't care.
         }
 
         public CHVersion since() {
@@ -47,7 +47,7 @@ public class Functions {
     }
     
     @api(environments = {CommandHelperEnvironment.class})
-    public static class listen extends CommFunc {
+    public static class comm_listen extends CommFunc {
 
         public Construct exec(Target t, Environment environment, 
                 Construct... args) throws ConfigRuntimeException {
@@ -98,7 +98,7 @@ public class Functions {
     }
     
     @api(environments = {CommandHelperEnvironment.class})
-    public static class connect extends CommFunc {
+    public static class comm_connect extends CommFunc {
         public Construct exec(Target t, Environment environment, 
                 Construct... args) throws ConfigRuntimeException {
             String name = args[0].val();
@@ -148,7 +148,7 @@ public class Functions {
     }
     
     @api(environments = {CommandHelperEnvironment.class})
-    public static class disconnect extends CommFunc {
+    public static class comm_disconnect extends CommFunc {
         public Construct exec(Target t, Environment environment, 
                 Construct... args) throws ConfigRuntimeException {
             String name = args[0].val();
@@ -206,7 +206,7 @@ public class Functions {
     }
     
     @api(environments = {CommandHelperEnvironment.class})
-    public static class close extends CommFunc {
+    public static class comm_close extends CommFunc {
         public Construct exec(Target t, Environment environment, 
                 Construct... args) throws ConfigRuntimeException {
             String name = args[0].val();
@@ -258,7 +258,7 @@ public class Functions {
     }
     
     @api(environments = {CommandHelperEnvironment.class})
-    public static class subscribe extends CommFunc {
+    public static class comm_subscribe extends CommFunc {
         public Construct exec(Target t, Environment environment, 
                 Construct... args) throws ConfigRuntimeException {
             String name = args[0].val();
@@ -301,7 +301,7 @@ public class Functions {
     }
     
     @api(environments = {CommandHelperEnvironment.class})
-    public static class unsubscribe extends CommFunc {
+    public static class comm_unsubscribe extends CommFunc {
         public Construct exec(Target t, Environment environment, 
                 Construct... args) throws ConfigRuntimeException {
             String name = args[0].val();
@@ -344,7 +344,7 @@ public class Functions {
     }
     
     @api(environments = {CommandHelperEnvironment.class})
-    public static class publish extends CommFunc {
+    public static class comm_publish extends CommFunc {
         public Construct exec(Target t, Environment environment, 
                 Construct... args) throws ConfigRuntimeException {
             String name = args[0].val();

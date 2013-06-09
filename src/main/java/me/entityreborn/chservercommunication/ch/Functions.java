@@ -352,7 +352,7 @@ public class Functions {
             String name = args[0].val();
             String channel = args[1].val();
             String message = args[2].val();
-            String origpub = null;
+            String origpub = name;
             
             if (args.length == 4) {
                 origpub = args[3].val();

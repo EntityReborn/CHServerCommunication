@@ -38,6 +38,21 @@ public class Publisher extends NodePoint implements Runnable {
         queue.add(tosend);
     }
     
+    public void publish(String channel, String message, String origpub) throws InvalidNameException, InvalidChannelException {
+        String chan = channel.trim();
+        
+        if(!Util.isValidName(origpub)) {
+            throw new InvalidNameException(origpub);
+        }
+        
+        if(!Util.isValidChannel(channel)) {
+            throw new InvalidChannelException(channel);
+        }
+        
+        String tosend = chan + '\0' + origpub + '\0' + message;
+        queue.add(tosend);
+    }
+    
     @Override
     public void run() {
         while (!Thread.currentThread().isInterrupted() && alive) {
@@ -75,20 +90,5 @@ public class Publisher extends NodePoint implements Runnable {
         pub.stop();
         
         context.term();
-    }
-
-    public void publish(String channel, String message, String origpub) throws InvalidNameException, InvalidChannelException {
-        String chan = channel.trim();
-        
-        if(!Util.isValidName(origpub)) {
-            throw new InvalidNameException(origpub);
-        }
-        
-        if(!Util.isValidChannel(channel)) {
-            throw new InvalidChannelException(channel);
-        }
-        
-        String tosend = chan + '\0' + origpub + '\0' + message;
-        queue.add(tosend);
     }
 }

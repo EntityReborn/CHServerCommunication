@@ -28,6 +28,7 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
+                            <minimizeJar>true</minimizeJar>
                             <shadedArtifactAttached>false</shadedArtifactAttached>
                             <shadedClassifierName>Bundle</shadedClassifierName>
                             <artifactSet>

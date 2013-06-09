@@ -14,6 +14,7 @@ import com.laytonsmith.core.environments.Environment;
 import com.laytonsmith.core.exceptions.ConfigRuntimeException;
 import com.laytonsmith.core.functions.AbstractFunction;
 import com.laytonsmith.core.functions.Exceptions;
+import com.laytonsmith.core.functions.Exceptions.ExceptionType;
 import me.entityreborn.chservercommunication.Exceptions.InvalidChannelException;
 import me.entityreborn.chservercommunication.Exceptions.InvalidNameException;
 import me.entityreborn.chservercommunication.NodePoint;
@@ -28,11 +29,11 @@ import org.zeromq.ZMQ;
  */
 public class Functions {
     public abstract static class CommFunc extends AbstractFunction {
-
         public Exceptions.ExceptionType[] thrown() {
-            return null;
+            return new ExceptionType[]{ExceptionType.FormatException, 
+                ExceptionType.NotFoundException};
         }
-
+        
         public boolean isRestricted() {
             return true;
         }
@@ -48,7 +49,6 @@ public class Functions {
     
     @api(environments = {CommandHelperEnvironment.class})
     public static class comm_listen extends CommFunc {
-
         public Construct exec(Target t, Environment environment, 
                 Construct... args) throws ConfigRuntimeException {
             String name = args[0].val();
@@ -60,7 +60,7 @@ public class Functions {
 
                 if (!stype.equals("PUB") && !stype.equals("SUB")) {
                     throw new ConfigRuntimeException("You must specify PUB or SUB"
-                            + " for comm_listen's third argument!", t);
+                            + " for comm_listen's third argument!", Exceptions.ExceptionType.NotFoundException, t);
                 }
 
                 if (stype.equals("SUB")) {
@@ -74,7 +74,7 @@ public class Functions {
                 node = Tracking.getOrCreate(type, name);
             } catch (InvalidNameException ex) {
                 throw new ConfigRuntimeException("Invalid name " + name + 
-                        " given to comm_listen!", t);
+                        " given to comm_listen!", Exceptions.ExceptionType.FormatException, t);
             }
             
             node.listen(endpoint);
@@ -110,7 +110,7 @@ public class Functions {
 
                 if (!stype.equals("PUB") && !stype.equals("SUB")) {
                     throw new ConfigRuntimeException("You must specify PUB or SUB"
-                            + " for comm_disconnect's third argument!", t);
+                            + " for comm_disconnect's third argument!", Exceptions.ExceptionType.NotFoundException, t);
                 }
 
                 if (stype.equals("PUB")) {
@@ -124,7 +124,7 @@ public class Functions {
                 node = Tracking.getOrCreate(type, name);
             } catch (InvalidNameException ex) {
                 throw new ConfigRuntimeException("Invalid name " + name + 
-                        " given to comm_connect!", t);
+                        " given to comm_connect!", Exceptions.ExceptionType.FormatException, t);
             }
             
             node.connect(endpoint);
@@ -160,7 +160,7 @@ public class Functions {
 
                 if (!stype.equals("PUB") && !stype.equals("SUB")) {
                     throw new ConfigRuntimeException("You must specify PUB or SUB"
-                            + " for comm_disconnect's third argument!", t);
+                            + " for comm_disconnect's third argument!", Exceptions.ExceptionType.NotFoundException, t);
                 }
 
                 if (stype.equals("PUB")) {
@@ -178,12 +178,12 @@ public class Functions {
                 }
             } catch (InvalidNameException ex) {
                 throw new ConfigRuntimeException("Invalid name " + name + 
-                        " given to comm_disconnect!", t);
+                        " given to comm_disconnect!", Exceptions.ExceptionType.FormatException, t);
             }
             
             if (node == null) {
                 throw new ConfigRuntimeException("Unknown " + name + " "
-                        + " given to comm_disconnect!", t);
+                        + " given to comm_disconnect!", Exceptions.ExceptionType.NotFoundException, t);
             }
             
             node.disconnect(endpoint);
@@ -217,7 +217,7 @@ public class Functions {
 
                 if (!stype.equals("PUB") && !stype.equals("SUB")) {
                     throw new ConfigRuntimeException("You must specify PUB or SUB"
-                            + " for comm_close's second argument!", t);
+                            + " for comm_close's second argument!", Exceptions.ExceptionType.NotFoundException, t);
                 }
 
                 if (stype.equals("PUB")) {
@@ -231,12 +231,12 @@ public class Functions {
                 found = Tracking.close(name, type);
             } catch (InvalidNameException ex) {
                 throw new ConfigRuntimeException("Invalid name " + name + 
-                        " given to comm_close!", t);
+                        " given to comm_close!", Exceptions.ExceptionType.FormatException, t);
             }
             
             if (!found) {
                 throw new ConfigRuntimeException("Unknown " + name + " "
-                        + " given to comm_close!", t);
+                        + " given to comm_close!", Exceptions.ExceptionType.NotFoundException, t);
             }
             
             return new CVoid(t);
@@ -270,18 +270,19 @@ public class Functions {
                 node = Tracking.getSub(name);
             } catch (InvalidNameException ex) {
                 throw new ConfigRuntimeException("Invalid name " + name + 
-                        " given to comm_subscribe!", t);
+                        " given to comm_subscribe!", Exceptions.ExceptionType.FormatException, t);
             }
             
             if (node == null) {
                 throw new ConfigRuntimeException("Unknown SUB " + name + 
-                        " given to comm_subscribe!", t);
+                        " given to comm_subscribe!", Exceptions.ExceptionType.NotFoundException, t);
             }
+            
             try {
                 ((Subscriber)node).subscribe(channel);
             } catch (InvalidChannelException ex) {
                 throw new ConfigRuntimeException("Invalid channel " + channel + 
-                        " given to comm_subscribe!", t);
+                        " given to comm_subscribe!", Exceptions.ExceptionType.FormatException, t);
             }
             
             return new CVoid(t);
@@ -313,18 +314,19 @@ public class Functions {
                 node = Tracking.getSub(name);
             } catch (me.entityreborn.chservercommunication.Exceptions.InvalidNameException ex) {
                 throw new ConfigRuntimeException("Invalid name " + name + 
-                        " given to comm_unsubscribe!", t);
+                        " given to comm_unsubscribe!", Exceptions.ExceptionType.FormatException, t);
             }
             
             if (node == null) {
                 throw new ConfigRuntimeException("Unknown SUB " + name + 
-                        " given to comm_unsubscribe!", t);
+                        " given to comm_unsubscribe!", Exceptions.ExceptionType.NotFoundException, t);
             }
+            
             try {
                 ((Subscriber)node).unsubscribe(channel);
             } catch (InvalidChannelException ex) {
                 throw new ConfigRuntimeException("Invalid channel " + channel + 
-                        " given to comm_subscribe!", t);
+                        " given to comm_subscribe!", Exceptions.ExceptionType.FormatException, t);
             }
             
             return new CVoid(t);
@@ -363,16 +365,16 @@ public class Functions {
             
                 if (node == null) {
                     throw new ConfigRuntimeException("Unknown PUB " + name + 
-                            " given to comm_publish!", t);
+                            " given to comm_publish!", Exceptions.ExceptionType.NotFoundException, t);
                 }
                 
                 ((Publisher)node).publish(channel, message, origpub);
             } catch (InvalidChannelException ex) {
                 throw new ConfigRuntimeException("Invalid channel " + channel + 
-                        " given to comm_publish!", t);
+                        " given to comm_publish!", Exceptions.ExceptionType.FormatException, t);
             } catch (InvalidNameException ex) {
                 throw new ConfigRuntimeException("Invalid name " + name + 
-                        " given to comm_publish!", t);
+                        " given to comm_publish!", Exceptions.ExceptionType.FormatException, t);
             }
             
             return new CVoid(t);

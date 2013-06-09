@@ -12,14 +12,16 @@ public class Subscriber extends NodePoint implements Runnable {
     private static int subcount = 0;
     
     public static interface MessageCallback {
-        public void process(String channel, String serverID, String message);
+        public void process(String subscriber, String channel, String publisher, String message);
     }
     
     private Set<MessageCallback> callbacks;
+    private String name;
 
-    public Subscriber() {
+    public Subscriber(String name) {
         callbacks = Collections.synchronizedSet(new HashSet<MessageCallback>());
         owningThread = new Thread(this, "subscriber-" + ++subcount);
+        this.name = name;
     }
     
     public void init(Context context) {
@@ -103,7 +105,7 @@ public class Subscriber extends NodePoint implements Runnable {
             for (MessageCallback toRun : callbacks) {
                 try {
                     // Let the callback figure out threading issues.
-                    toRun.process(channel, identifier, message);
+                    toRun.process(this.name, channel, identifier, message);
                 } catch (Exception ex) {
                     Logger.getLogger(Subscriber.class.getName()).log(Level.SEVERE, 
                             "Error processing callback", ex);
@@ -117,15 +119,15 @@ public class Subscriber extends NodePoint implements Runnable {
     public static void main (String[] args) throws InterruptedException, Exceptions.InvalidChannelException {
         Context context = ZMQ.context(1);
         
-        Subscriber sub = new Subscriber();
+        Subscriber sub = new Subscriber("testing");
         sub.init(context);
         sub.subscribe("*");
         sub.connect("tcp://localhost:5556");
         
         sub.addCallback(new MessageCallback() {
-            public void process(String channel, String serverID, String message) {
+            public void process(String subscriber, String channel, String publisher, String message) {
                 String msg = "Received %s from %s on channel %s";
-                System.out.println(String.format(msg, message, serverID, channel));
+                System.out.println(String.format(msg, message, publisher, channel));
             }
         });
         

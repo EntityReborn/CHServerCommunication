@@ -62,9 +62,9 @@ Server A's `main.ms`:
 	comm_subscribe('examplesub', '*')
 
 	bind('comm_received', null, null, @event,
-        @pubid = @event['publisherid']
-        @channel = @event['channel']
-        @message = @event['message']
+            @pubid = @event['publisherid']
+            @channel = @event['channel']
+            @message = @event['message']
 		
 		# Use special _publish function to specify the ID being sent.
 	    comm_publish('examplepub', @channel, @message, @pubid)

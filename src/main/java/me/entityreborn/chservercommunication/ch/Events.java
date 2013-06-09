@@ -34,20 +34,22 @@ public class Events {
         });
     }
 
-    public static void fireReceived(String channel, String id, String message) {
-        RecvEvent event = new RecvEvent(channel, id, message);
+    public static void fireReceived(String subscriber, String channel, String publisher, String message) {
+        RecvEvent event = new RecvEvent(subscriber, channel, publisher, message);
         fireEvent(event, "comm_received");
     }
 
     private static class RecvEvent implements BindableEvent {
 
+        private String subscriber;
         private String channel;
-        private String id;
+        private String publisher;
         private String message;
 
-        public RecvEvent(String channel, String id, String message) {
+        public RecvEvent(String subscriber, String channel, String publisher, String message) {
+            this.subscriber = subscriber;
             this.channel = channel;
-            this.id = id;
+            this.publisher = publisher;
             this.message = message;
         }
 
@@ -59,8 +61,12 @@ public class Events {
             return channel;
         }
 
-        public String getId() {
-            return id;
+        public String getPublisher() {
+            return publisher;
+        }
+        
+        public String getSubscriber() {
+            return subscriber;
         }
 
         public String getMessage() {
@@ -75,12 +81,13 @@ public class Events {
         }
 
         public String docs() {
-            return "{channel: <string match> | publisherid: <string match>} "
+            return "{channel: <string match> | publisherid: <string match> | subscriberid: <string match>} "
                     + "Fired when a message is received by a SUB socket. "
                     + "{channel: The channel this message was directed to | "
                     + "publisherid: The name of the publisher who sent this message | "
+                    + "subscriberid: The name of the subscriber who received this message | "
                     + "message: The message itself} "
-                    + "{channel|publisherid}";
+                    + "{channel|publisherid|subscriberid}";
         }
 
         public boolean matches(Map<String, Construct> prefilter, BindableEvent event)
@@ -89,7 +96,8 @@ public class Events {
                 RecvEvent e = (RecvEvent)event;
                 
                 Prefilters.match(prefilter, "channel", e.getChannel(), Prefilters.PrefilterType.STRING_MATCH);
-                Prefilters.match(prefilter, "publisherid", e.getId(), Prefilters.PrefilterType.STRING_MATCH);
+                Prefilters.match(prefilter, "publisherid", e.getPublisher(), Prefilters.PrefilterType.STRING_MATCH);
+                Prefilters.match(prefilter, "subscriberid", e.getSubscriber(), Prefilters.PrefilterType.STRING_MATCH);
 
                 return true;
             }
@@ -109,7 +117,8 @@ public class Events {
                 Map<String, Construct> map = evaluate_helper(event);
 
                 map.put("channel", new CString(e.getChannel(), Target.UNKNOWN));
-                map.put("publisherid", new CString(e.getId(), Target.UNKNOWN));
+                map.put("publisherid", new CString(e.getPublisher(), Target.UNKNOWN));
+                map.put("subscriberid", new CString(e.getSubscriber(), Target.UNKNOWN));
                 map.put("message", new CString(e.getMessage(), Target.UNKNOWN));
 
                 return map;

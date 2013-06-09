@@ -123,15 +123,15 @@ public class Tracking {
             retn = getSub(name);
             
             if (retn == null) {
-                Subscriber sub = new Subscriber();
+                Subscriber sub = new Subscriber(name);
                 sub.init(context);
                 sub.start();
                 
                 subscribers.put(name, sub);
 
                 sub.addCallback(new MessageCallback() {
-                    public void process(String channel, String serverID, String message) {
-                        Events.fireReceived(channel, serverID, message);
+                    public void process(String subscriber, String channel, String publisher, String message) {
+                        Events.fireReceived(subscriber, channel, publisher, message);
                     }
                 });
                 

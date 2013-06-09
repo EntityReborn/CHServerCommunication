@@ -55,8 +55,6 @@ In the case that we want to use a central server to manage messages and share a
 single message between multiple subscribers, we can use a proxy pattern. This 
 helps make network topography much more liquid. Server A will be our proxy in 
 this example.
-
-Server A's `main.ms`:
 	
         #====================== Server 1 (Publisher) =====================
 
@@ -114,5 +112,3 @@ Server A's `main.ms`:
         bind('comm_received', null, array('subscriberid': 'Somesub2'), @event,
             console('Chat:' @event['message'])
         )
-
-Later, other pubs can `connect` to 5557 to publish, and subs can `connect` to 5556 to receive.

@@ -14,6 +14,7 @@ public class Exceptions {
             super(message);
         }
     }
+    
     public static class InvalidChannelException extends Exception {
         public InvalidChannelException(String message) {
             super(message);

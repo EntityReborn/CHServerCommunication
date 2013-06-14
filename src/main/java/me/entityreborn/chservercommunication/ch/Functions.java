@@ -22,6 +22,7 @@ import me.entityreborn.chservercommunication.Publisher;
 import me.entityreborn.chservercommunication.Subscriber;
 import me.entityreborn.chservercommunication.Tracking;
 import org.zeromq.ZMQ;
+import org.zeromq.ZMQException;
 
 /**
  *
@@ -31,7 +32,7 @@ public class Functions {
     public abstract static class CommFunc extends AbstractFunction {
         public Exceptions.ExceptionType[] thrown() {
             return new ExceptionType[]{ExceptionType.FormatException, 
-                ExceptionType.NotFoundException};
+                ExceptionType.NotFoundException, ExceptionType.IOException};
         }
         
         public boolean isRestricted() {
@@ -77,7 +78,12 @@ public class Functions {
                         " given to comm_listen!", Exceptions.ExceptionType.FormatException, t);
             }
             
-            node.listen(endpoint);
+            try {
+                node.listen(endpoint);
+            } catch (ZMQException e) {
+                throw new ConfigRuntimeException("Exception while listening:", 
+                        Exceptions.ExceptionType.IOException, t);
+            }
             
             return new CVoid(t);
         }
@@ -127,7 +133,12 @@ public class Functions {
                         " given to comm_connect!", Exceptions.ExceptionType.FormatException, t);
             }
             
-            node.connect(endpoint);
+            try {
+                node.connect(endpoint);
+            } catch (ZMQException e) {
+                throw new ConfigRuntimeException("Exception while connecting:", 
+                        Exceptions.ExceptionType.IOException, t);
+            }
             
             return new CVoid(t);
         }
@@ -186,7 +197,12 @@ public class Functions {
                         + " given to comm_disconnect!", Exceptions.ExceptionType.NotFoundException, t);
             }
             
-            node.disconnect(endpoint);
+            try {
+                node.disconnect(endpoint);
+            } catch (ZMQException e) {
+                throw new ConfigRuntimeException("Exception while disconnecting:", 
+                        Exceptions.ExceptionType.IOException, t);
+            }
             
             return new CVoid(t);
         }
@@ -232,6 +248,9 @@ public class Functions {
             } catch (InvalidNameException ex) {
                 throw new ConfigRuntimeException("Invalid name " + name + 
                         " given to comm_close!", Exceptions.ExceptionType.FormatException, t);
+            } catch (ZMQException e) {
+                throw new ConfigRuntimeException("Exception while closing:", 
+                        Exceptions.ExceptionType.IOException, t);
             }
             
             if (!found) {
@@ -283,6 +302,9 @@ public class Functions {
             } catch (InvalidChannelException ex) {
                 throw new ConfigRuntimeException("Invalid channel " + channel + 
                         " given to comm_subscribe!", Exceptions.ExceptionType.FormatException, t);
+            } catch (ZMQException e) {
+                throw new ConfigRuntimeException("Exception while subscribing:", 
+                        Exceptions.ExceptionType.IOException, t);
             }
             
             return new CVoid(t);
@@ -327,6 +349,9 @@ public class Functions {
             } catch (InvalidChannelException ex) {
                 throw new ConfigRuntimeException("Invalid channel " + channel + 
                         " given to comm_subscribe!", Exceptions.ExceptionType.FormatException, t);
+            } catch (ZMQException e) {
+                throw new ConfigRuntimeException("Exception while unsubscribing:", 
+                        Exceptions.ExceptionType.IOException, t);
             }
             
             return new CVoid(t);
@@ -375,6 +400,9 @@ public class Functions {
             } catch (InvalidNameException ex) {
                 throw new ConfigRuntimeException("Invalid name " + name + 
                         " given to comm_publish!", Exceptions.ExceptionType.FormatException, t);
+            } catch (ZMQException e) {
+                throw new ConfigRuntimeException("Exception while publishing:", 
+                        Exceptions.ExceptionType.IOException, t);
             }
             
             return new CVoid(t);

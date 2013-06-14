@@ -81,7 +81,7 @@ public class Functions {
             try {
                 node.listen(endpoint);
             } catch (ZMQException e) {
-                throw new ConfigRuntimeException("Exception while listening:", 
+                throw new ConfigRuntimeException("Exception while listening: " + e.getMessage(), 
                         Exceptions.ExceptionType.IOException, t);
             }
             
@@ -136,7 +136,7 @@ public class Functions {
             try {
                 node.connect(endpoint);
             } catch (ZMQException e) {
-                throw new ConfigRuntimeException("Exception while connecting:", 
+                throw new ConfigRuntimeException("Exception while connecting: " + e.getMessage(), 
                         Exceptions.ExceptionType.IOException, t);
             }
             
@@ -200,7 +200,7 @@ public class Functions {
             try {
                 node.disconnect(endpoint);
             } catch (ZMQException e) {
-                throw new ConfigRuntimeException("Exception while disconnecting:", 
+                throw new ConfigRuntimeException("Exception while disconnecting: " + e.getMessage(), 
                         Exceptions.ExceptionType.IOException, t);
             }
             
@@ -249,7 +249,7 @@ public class Functions {
                 throw new ConfigRuntimeException("Invalid name " + name + 
                         " given to comm_close!", Exceptions.ExceptionType.FormatException, t);
             } catch (ZMQException e) {
-                throw new ConfigRuntimeException("Exception while closing:", 
+                throw new ConfigRuntimeException("Exception while closing: " + e.getMessage(), 
                         Exceptions.ExceptionType.IOException, t);
             }
             
@@ -303,7 +303,7 @@ public class Functions {
                 throw new ConfigRuntimeException("Invalid channel " + channel + 
                         " given to comm_subscribe!", Exceptions.ExceptionType.FormatException, t);
             } catch (ZMQException e) {
-                throw new ConfigRuntimeException("Exception while subscribing:", 
+                throw new ConfigRuntimeException("Exception while subscribing: " + e.getMessage(), 
                         Exceptions.ExceptionType.IOException, t);
             }
             
@@ -350,7 +350,7 @@ public class Functions {
                 throw new ConfigRuntimeException("Invalid channel " + channel + 
                         " given to comm_subscribe!", Exceptions.ExceptionType.FormatException, t);
             } catch (ZMQException e) {
-                throw new ConfigRuntimeException("Exception while unsubscribing:", 
+                throw new ConfigRuntimeException("Exception while unsubscribing: " + e.getMessage(), 
                         Exceptions.ExceptionType.IOException, t);
             }
             
@@ -401,7 +401,7 @@ public class Functions {
                 throw new ConfigRuntimeException("Invalid name " + name + 
                         " given to comm_publish!", Exceptions.ExceptionType.FormatException, t);
             } catch (ZMQException e) {
-                throw new ConfigRuntimeException("Exception while publishing:", 
+                throw new ConfigRuntimeException("Exception while publishing: " + e.getMessage(), 
                         Exceptions.ExceptionType.IOException, t);
             }
             

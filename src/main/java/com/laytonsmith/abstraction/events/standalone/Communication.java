@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package me.entityreborn.chservercommunication.ch;
+package com.laytonsmith.abstraction.events.standalone;
 
 import com.laytonsmith.abstraction.StaticLayer;
 import com.laytonsmith.annotations.api;
@@ -24,7 +24,7 @@ import java.util.Map;
  *
  * @author import
  */
-public class Events {
+public class Communication {
 
     private static void fireEvent(final BindableEvent event, final String name) {
         StaticLayer.GetConvertor().runOnMainThreadLater(new Runnable() {

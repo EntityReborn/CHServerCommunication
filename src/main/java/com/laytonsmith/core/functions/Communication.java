@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package me.entityreborn.chservercommunication.ch;
+package com.laytonsmith.core.functions;
 
 import com.laytonsmith.annotations.api;
 import com.laytonsmith.core.CHVersion;
@@ -12,15 +12,15 @@ import com.laytonsmith.core.constructs.Target;
 import com.laytonsmith.core.environments.CommandHelperEnvironment;
 import com.laytonsmith.core.environments.Environment;
 import com.laytonsmith.core.exceptions.ConfigRuntimeException;
+import com.laytonsmith.core.functions.Exceptions.ExceptionType;
+import com.laytonsmith.communication.Exceptions.InvalidChannelException;
+import com.laytonsmith.communication.Exceptions.InvalidNameException;
+import com.laytonsmith.communication.NodePoint;
+import com.laytonsmith.communication.Publisher;
+import com.laytonsmith.communication.Subscriber;
+import com.laytonsmith.communication.Tracking;
 import com.laytonsmith.core.functions.AbstractFunction;
 import com.laytonsmith.core.functions.Exceptions;
-import com.laytonsmith.core.functions.Exceptions.ExceptionType;
-import me.entityreborn.chservercommunication.Exceptions.InvalidChannelException;
-import me.entityreborn.chservercommunication.Exceptions.InvalidNameException;
-import me.entityreborn.chservercommunication.NodePoint;
-import me.entityreborn.chservercommunication.Publisher;
-import me.entityreborn.chservercommunication.Subscriber;
-import me.entityreborn.chservercommunication.Tracking;
 import org.zeromq.ZMQ;
 import org.zeromq.ZMQException;
 
@@ -28,7 +28,7 @@ import org.zeromq.ZMQException;
  *
  * @author import
  */
-public class Functions {
+public class Communication {
     public abstract static class CommFunc extends AbstractFunction {
         public Exceptions.ExceptionType[] thrown() {
             return new ExceptionType[]{ExceptionType.FormatException, 
@@ -334,7 +334,7 @@ public class Functions {
             
             try {
                 node = Tracking.getSub(name);
-            } catch (me.entityreborn.chservercommunication.Exceptions.InvalidNameException ex) {
+            } catch (com.laytonsmith.communication.Exceptions.InvalidNameException ex) {
                 throw new ConfigRuntimeException("Invalid name " + name + 
                         " given to comm_unsubscribe!", Exceptions.ExceptionType.FormatException, t);
             }

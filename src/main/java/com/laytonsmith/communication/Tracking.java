@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package me.entityreborn.chservercommunication;
+package com.laytonsmith.communication;
 
 import com.laytonsmith.annotations.shutdown;
 import com.laytonsmith.annotations.startup;
@@ -13,9 +13,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import me.entityreborn.chservercommunication.Exceptions.InvalidNameException;
-import me.entityreborn.chservercommunication.Subscriber.MessageCallback;
-import me.entityreborn.chservercommunication.ch.Events;
+import com.laytonsmith.communication.Exceptions.InvalidNameException;
+import com.laytonsmith.communication.Subscriber.MessageCallback;
+import com.laytonsmith.abstraction.events.standalone.Communication;
 import org.zeromq.ZMQ;
 import org.zeromq.ZMQ.Context;
 
@@ -27,17 +27,11 @@ public class Tracking {
     
     @startup
     public static void startup() {
-        System.out.println("Loading CHServerCommunication...");
-        
         context = ZMQ.context(1);
-        
-        System.out.println("CHServerCommunication loaded.");
     }
     
     @shutdown
     public static void shutdown() {
-        System.out.println("Unloading CHServerCommunication...");
-        
         Set<String> keys = publishers.keySet();
         for(String key : keys) { 
             Publisher pub = publishers.get(key);
@@ -62,8 +56,6 @@ public class Tracking {
         
         context.term();
         context = null;
-        
-        System.out.println("CHServerCommunication unloaded.");
     }
     
     private static Map<String, Publisher> publishers = new HashMap<String, Publisher>();
@@ -132,7 +124,7 @@ public class Tracking {
 
                 sub.addCallback(new MessageCallback() {
                     public void process(String subscriber, String channel, String publisher, String message) {
-                        Events.fireReceived(subscriber, channel, publisher, message);
+                        Communication.fireReceived(subscriber, channel, publisher, message);
                     }
                 });
                 

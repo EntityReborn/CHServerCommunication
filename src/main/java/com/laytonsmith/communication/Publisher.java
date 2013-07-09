@@ -1,9 +1,9 @@
-package me.entityreborn.chservercommunication;
+package com.laytonsmith.communication;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-import me.entityreborn.chservercommunication.Exceptions.InvalidChannelException;
-import me.entityreborn.chservercommunication.Exceptions.InvalidNameException;
+import com.laytonsmith.communication.Exceptions.InvalidChannelException;
+import com.laytonsmith.communication.Exceptions.InvalidNameException;
 
 import org.zeromq.ZMQ;
 import org.zeromq.ZMQ.Context;

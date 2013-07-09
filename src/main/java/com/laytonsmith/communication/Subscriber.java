@@ -1,4 +1,4 @@
-package me.entityreborn.chservercommunication;
+package com.laytonsmith.communication;
 
 import java.util.Collections;
 import java.util.HashSet;

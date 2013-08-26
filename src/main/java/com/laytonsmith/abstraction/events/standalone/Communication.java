@@ -4,6 +4,7 @@
  */
 package com.laytonsmith.abstraction.events.standalone;
 
+import com.laytonsmith.PureUtilities.DaemonManager;
 import com.laytonsmith.abstraction.StaticLayer;
 import com.laytonsmith.annotations.api;
 import com.laytonsmith.core.CHVersion;
@@ -26,17 +27,17 @@ import java.util.Map;
  */
 public class Communication {
 
-    private static void fireEvent(final BindableEvent event, final String name) {
-        StaticLayer.GetConvertor().runOnMainThreadLater(new Runnable() {
+    private static void fireEvent(DaemonManager daemon, final BindableEvent event, final String name) {
+        StaticLayer.GetConvertor().runOnMainThreadLater(daemon, new Runnable() {
             public void run() {
                 EventUtils.TriggerListener(Driver.EXTENSION, name, event);
             }
         });
     }
 
-    public static void fireReceived(String subscriber, String channel, String publisher, String message) {
+    public static void fireReceived(DaemonManager daemon, String subscriber, String channel, String publisher, String message) {
         RecvEvent event = new RecvEvent(subscriber, channel, publisher, message);
-        fireEvent(event, "comm_received");
+        fireEvent(daemon, event, "comm_received");
     }
 
     private static class RecvEvent implements BindableEvent {

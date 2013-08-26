@@ -4,6 +4,7 @@
  */
 package com.laytonsmith.core.functions;
 
+import com.laytonsmith.PureUtilities.DaemonManager;
 import com.laytonsmith.annotations.api;
 import com.laytonsmith.core.CHVersion;
 import com.laytonsmith.core.constructs.CVoid;
@@ -19,6 +20,7 @@ import com.laytonsmith.communication.NodePoint;
 import com.laytonsmith.communication.Publisher;
 import com.laytonsmith.communication.Subscriber;
 import com.laytonsmith.communication.Tracking;
+import com.laytonsmith.core.environments.GlobalEnv;
 import com.laytonsmith.core.functions.AbstractFunction;
 import com.laytonsmith.core.functions.Exceptions;
 import org.zeromq.ZMQ;
@@ -70,9 +72,10 @@ public class Communication {
             }
             
             NodePoint node;
+            DaemonManager daemon = environment.getEnv(GlobalEnv.class).GetDaemonManager();
             
             try {
-                node = Tracking.getOrCreate(type, name);
+                node = Tracking.getOrCreate(daemon, type, name);
             } catch (InvalidNameException ex) {
                 throw new ConfigRuntimeException("Invalid name " + name + 
                         " given to comm_listen!", Exceptions.ExceptionType.FormatException, t);
@@ -125,9 +128,10 @@ public class Communication {
             }
             
             NodePoint node;
+            DaemonManager daemon = environment.getEnv(GlobalEnv.class).GetDaemonManager();
             
             try {
-                node = Tracking.getOrCreate(type, name);
+                node = Tracking.getOrCreate(daemon, type, name);
             } catch (InvalidNameException ex) {
                 throw new ConfigRuntimeException("Invalid name " + name + 
                         " given to comm_connect!", Exceptions.ExceptionType.FormatException, t);

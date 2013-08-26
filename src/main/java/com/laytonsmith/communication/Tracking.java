@@ -4,6 +4,7 @@
  */
 package com.laytonsmith.communication;
 
+import com.laytonsmith.PureUtilities.DaemonManager;
 import com.laytonsmith.annotations.shutdown;
 import com.laytonsmith.annotations.startup;
 import com.laytonsmith.core.CHLog;
@@ -94,7 +95,7 @@ public class Tracking {
         return subscribers.get(name);
     }
     
-    public static NodePoint getOrCreate(int type, String name) throws InvalidNameException {
+    public static NodePoint getOrCreate(final DaemonManager daemon, int type, String name) throws InvalidNameException {
         NodePoint retn = null;
         
         if (!Util.isValidName(name)) {
@@ -124,7 +125,7 @@ public class Tracking {
 
                 sub.addCallback(new MessageCallback() {
                     public void process(String subscriber, String channel, String publisher, String message) {
-                        Communication.fireReceived(subscriber, channel, publisher, message);
+                        Communication.fireReceived(daemon, subscriber, channel, publisher, message);
                     }
                 });
                 

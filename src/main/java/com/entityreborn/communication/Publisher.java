@@ -1,16 +1,16 @@
-package com.laytonsmith.communication;
+package com.entityreborn.communication;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-import com.laytonsmith.communication.Exceptions.InvalidChannelException;
-import com.laytonsmith.communication.Exceptions.InvalidNameException;
+import com.entityreborn.communication.Exceptions.InvalidChannelException;
+import com.entityreborn.communication.Exceptions.InvalidNameException;
 
 import org.zeromq.ZMQ;
 import org.zeromq.ZMQ.Context;
 
 public class Publisher extends NodePoint implements Runnable {
-    private String publisherId;
-    private BlockingQueue<String> queue;
+    private final String publisherId;
+    private final BlockingQueue<String> queue = new LinkedBlockingQueue<String>();;
 
     public Publisher(String id) {
         if (id.contains("\0")) {
@@ -18,7 +18,6 @@ public class Publisher extends NodePoint implements Runnable {
         }
         
         publisherId = id;
-        queue = new LinkedBlockingQueue<String>();
         owningThread = new Thread(this, "publisher-" + publisherId);
     }
     

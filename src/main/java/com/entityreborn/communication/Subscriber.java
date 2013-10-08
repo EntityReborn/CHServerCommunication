@@ -1,4 +1,4 @@
-package com.laytonsmith.communication;
+package com.entityreborn.communication;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -13,11 +13,10 @@ public class Subscriber extends NodePoint implements Runnable {
         public void process(String subscriber, String channel, String publisher, String message);
     }
     
-    private Set<MessageCallback> callbacks;
-    private String name;
+    private final Set<MessageCallback> callbacks = Collections.synchronizedSet(new HashSet<MessageCallback>());
+    private final String name;
 
     public Subscriber(String name) {
-        callbacks = Collections.synchronizedSet(new HashSet<MessageCallback>());
         owningThread = new Thread(this, "subscriber-" + name);
         this.name = name;
     }

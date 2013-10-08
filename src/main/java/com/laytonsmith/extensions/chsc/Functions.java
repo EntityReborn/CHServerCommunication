@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.laytonsmith.core.functions;
+package com.laytonsmith.extensions.chsc;
 
 import com.laytonsmith.PureUtilities.DaemonManager;
 import com.laytonsmith.annotations.api;
@@ -14,12 +14,11 @@ import com.laytonsmith.core.environments.CommandHelperEnvironment;
 import com.laytonsmith.core.environments.Environment;
 import com.laytonsmith.core.exceptions.ConfigRuntimeException;
 import com.laytonsmith.core.functions.Exceptions.ExceptionType;
-import com.laytonsmith.communication.Exceptions.InvalidChannelException;
-import com.laytonsmith.communication.Exceptions.InvalidNameException;
-import com.laytonsmith.communication.NodePoint;
-import com.laytonsmith.communication.Publisher;
-import com.laytonsmith.communication.Subscriber;
-import com.laytonsmith.communication.Tracking;
+import com.entityreborn.communication.Exceptions.InvalidChannelException;
+import com.entityreborn.communication.Exceptions.InvalidNameException;
+import com.entityreborn.communication.NodePoint;
+import com.entityreborn.communication.Publisher;
+import com.entityreborn.communication.Subscriber;
 import com.laytonsmith.core.environments.GlobalEnv;
 import com.laytonsmith.core.functions.AbstractFunction;
 import com.laytonsmith.core.functions.Exceptions;
@@ -30,7 +29,7 @@ import org.zeromq.ZMQException;
  *
  * @author import
  */
-public class Communication {
+public class Functions {
     public abstract static class CommFunc extends AbstractFunction {
         public Exceptions.ExceptionType[] thrown() {
             return new ExceptionType[]{ExceptionType.FormatException, 
@@ -338,7 +337,7 @@ public class Communication {
             
             try {
                 node = Tracking.getSub(name);
-            } catch (com.laytonsmith.communication.Exceptions.InvalidNameException ex) {
+            } catch (com.entityreborn.communication.Exceptions.InvalidNameException ex) {
                 throw new ConfigRuntimeException("Invalid name " + name + 
                         " given to comm_unsubscribe!", Exceptions.ExceptionType.FormatException, t);
             }

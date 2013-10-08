@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.laytonsmith.communication;
+package com.laytonsmith.extensions.chsc;
 
 import com.laytonsmith.PureUtilities.DaemonManager;
 import com.laytonsmith.annotations.shutdown;
@@ -14,9 +14,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import com.laytonsmith.communication.Exceptions.InvalidNameException;
-import com.laytonsmith.communication.Subscriber.MessageCallback;
-import com.laytonsmith.abstraction.events.standalone.Communication;
+import com.entityreborn.communication.Exceptions.InvalidNameException;
+import com.entityreborn.communication.NodePoint;
+import com.entityreborn.communication.Publisher;
+import com.entityreborn.communication.Subscriber;
+import com.entityreborn.communication.Subscriber.MessageCallback;
+import com.entityreborn.communication.Util;
 import org.zeromq.ZMQ;
 import org.zeromq.ZMQ.Context;
 
@@ -28,11 +31,14 @@ public class Tracking {
     
     @startup
     public static void startup() {
+        System.out.println("CHServerCommunication starting...");
         context = ZMQ.context(1);
+        System.out.println("CHServerCommunication started!");
     }
     
     @shutdown
     public static void shutdown() {
+        System.out.println("CHServerCommunication shutting down...");
         Set<String> keys = publishers.keySet();
         for(String key : keys) { 
             Publisher pub = publishers.get(key);
@@ -57,10 +63,12 @@ public class Tracking {
         
         context.term();
         context = null;
+        
+        System.out.println("CHServerCommunication shut down!");
     }
     
-    private static Map<String, Publisher> publishers = new HashMap<String, Publisher>();
-    private static Map<String, Subscriber> subscribers = new HashMap<String, Subscriber>();
+    private static final Map<String, Publisher> publishers = new HashMap<String, Publisher>();
+    private static final Map<String, Subscriber> subscribers = new HashMap<String, Subscriber>();
     public static Context context;
     
     public static boolean hasPublisher(String name) throws InvalidNameException {
@@ -125,7 +133,7 @@ public class Tracking {
 
                 sub.addCallback(new MessageCallback() {
                     public void process(String subscriber, String channel, String publisher, String message) {
-                        Communication.fireReceived(daemon, subscriber, channel, publisher, message);
+                        Events.fireReceived(daemon, subscriber, channel, publisher, message);
                     }
                 });
                 

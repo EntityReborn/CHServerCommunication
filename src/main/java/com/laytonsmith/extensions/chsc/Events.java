@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.laytonsmith.abstraction.events.standalone;
+package com.laytonsmith.extensions.chsc;
 
 import com.laytonsmith.PureUtilities.DaemonManager;
 import com.laytonsmith.abstraction.StaticLayer;
@@ -25,7 +25,7 @@ import java.util.Map;
  *
  * @author import
  */
-public class Communication {
+public class Events {
 
     private static void fireEvent(DaemonManager daemon, final BindableEvent event, final String name) {
         StaticLayer.GetConvertor().runOnMainThreadLater(daemon, new Runnable() {
@@ -42,10 +42,10 @@ public class Communication {
 
     private static class RecvEvent implements BindableEvent {
 
-        private String subscriber;
-        private String channel;
-        private String publisher;
-        private String message;
+        private final String subscriber;
+        private final String channel;
+        private final String publisher;
+        private final String message;
 
         public RecvEvent(String subscriber, String channel, String publisher, String message) {
             this.subscriber = subscriber;

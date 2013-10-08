@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.laytonsmith.communication;
+package com.entityreborn.communication;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -54,6 +54,10 @@ public class NodePoint {
     }
 
     protected void init(Context context, int type) {
+        if (isInited) {
+            return;
+        }
+        
         this.type = type;
         
         socket = context.socket(type);

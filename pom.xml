@@ -4,7 +4,7 @@
 
     <groupId>me.entityreborn</groupId>
     <artifactId>CHServerCommunication</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>0.0.1</version>
     <packaging>jar</packaging>
 
     <name>CHServerCommunication</name>
@@ -40,6 +40,7 @@
                         <goals>
                             <goal>shade</goal>
                         </goals>
+                        
                         <configuration>
                             <minimizeJar>true</minimizeJar>
                             <shadedArtifactAttached>false</shadedArtifactAttached>
@@ -49,6 +50,7 @@
                                     <include>org.jeromq:jeromq:jar:*</include>
                                 </includes>
                             </artifactSet>
+                            
                             <filters>
                                 <filter>
                                     <artifact>org.jeromq:jeromq:jar:*</artifact>
@@ -61,6 +63,7 @@
                     </execution>
                 </executions>
             </plugin>
+            
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
@@ -77,6 +80,58 @@
                     </archive>
                 </configuration>
                 <version>2.4</version>
+            </plugin>
+            
+            <!-- Leave this alone! Verifies some things so that your extension works. -->
+            <plugin>
+                <groupId>org.bsc.maven</groupId>
+                <artifactId>maven-processor-plugin</artifactId>
+                <version>2.2.4</version>
+        
+                <executions>
+                    <execution>
+                        <id>process</id>
+                        <phase>process-classes</phase>
+                        
+                        <goals>
+                            <goal>process</goal>
+                        </goals>
+                    </execution>
+                </executions>
+        
+                <configuration>
+                    <outputDirectory>src/main/generated</outputDirectory>
+          
+                    <processors>
+                        <processor>com.laytonsmith.core.extensions.ExtensionAnnotationProcessor</processor>
+                    </processors>
+                </configuration>
+            </plugin>
+            
+            <!-- Leave this alone! Speeds up extension loading. -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.2.1</version>
+        
+                <executions>
+                    <execution>
+                        <id>cache-annotations</id>
+                        <phase>process-classes</phase>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                    </execution>
+                </executions>
+        
+                <configuration>
+                    <mainClass>com.laytonsmith.PureUtilities.ClassLoading.Annotations.CacheAnnotations</mainClass>
+          
+                    <arguments>
+                        <argument>${basedir}/target/classes</argument>
+                        <argument>${basedir}/target/classes</argument>
+                    </arguments>
+                </configuration>
             </plugin>
         </plugins>
     </build>

@@ -4,22 +4,24 @@
  */
 package com.laytonsmith.extensions.chsc;
 
-import com.laytonsmith.PureUtilities.DaemonManager;
-import com.laytonsmith.annotations.shutdown;
-import com.laytonsmith.annotations.startup;
-import com.laytonsmith.core.CHLog;
-import com.laytonsmith.core.constructs.Target;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import com.entityreborn.communication.Exceptions.InvalidNameException;
 import com.entityreborn.communication.NodePoint;
 import com.entityreborn.communication.Publisher;
 import com.entityreborn.communication.Subscriber;
 import com.entityreborn.communication.Subscriber.MessageCallback;
 import com.entityreborn.communication.Util;
+import com.laytonsmith.PureUtilities.DaemonManager;
+import com.laytonsmith.PureUtilities.SimpleVersion;
+import com.laytonsmith.PureUtilities.Version;
+import com.laytonsmith.core.CHLog;
+import com.laytonsmith.core.constructs.Target;
+import com.laytonsmith.core.extensions.AbstractExtension;
+import com.laytonsmith.core.extensions.MSExtension;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.zeromq.ZMQ;
 import org.zeromq.ZMQ.Context;
 
@@ -27,17 +29,18 @@ import org.zeromq.ZMQ.Context;
  *
  * @author import
  */
-public class Tracking {
-    
-    @startup
-    public static void startup() {
+@MSExtension("CHServerCommunication")
+public class Tracking extends AbstractExtension {
+
+    @Override
+    public void onStartup() {
         System.out.println("CHServerCommunication starting...");
         context = ZMQ.context(1);
         System.out.println("CHServerCommunication started!");
     }
     
-    @shutdown
-    public static void shutdown() {
+    @Override
+    public void onShutdown() {
         System.out.println("CHServerCommunication shutting down...");
         Set<String> keys = publishers.keySet();
         for(String key : keys) { 
@@ -166,5 +169,9 @@ public class Tracking {
         }
         
         return false;
+    }
+
+    public Version getVersion() {
+        return new SimpleVersion(0,0,1);
     }
 }

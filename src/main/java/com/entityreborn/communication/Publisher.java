@@ -1,12 +1,12 @@
 package com.entityreborn.communication;
 
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 import com.entityreborn.communication.Exceptions.InvalidChannelException;
 import com.entityreborn.communication.Exceptions.InvalidNameException;
-
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import org.zeromq.ZMQ;
 import org.zeromq.ZMQ.Context;
+import org.zeromq.ZMQException;
 
 public class Publisher extends NodePoint implements Runnable {
     private final String publisherId;
@@ -60,11 +60,17 @@ public class Publisher extends NodePoint implements Runnable {
             try {
                 tosend = queue.take(); // Blocking
             } catch (InterruptedException ex) {
+                // something derped, die.
                 break;
             }
             
             if (tosend != null) {
-                socket.send(tosend, 0);
+                try {
+                    socket.send(tosend, 0);
+                } catch (ZMQException e) {
+                    // something derped, die.
+                    break;
+                }
             }
         }
         

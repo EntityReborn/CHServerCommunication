@@ -4,24 +4,24 @@
  */
 package com.laytonsmith.extensions.chsc;
 
-import com.laytonsmith.PureUtilities.DaemonManager;
-import com.laytonsmith.annotations.api;
-import com.laytonsmith.core.CHVersion;
-import com.laytonsmith.core.constructs.CVoid;
-import com.laytonsmith.core.constructs.Construct;
-import com.laytonsmith.core.constructs.Target;
-import com.laytonsmith.core.environments.CommandHelperEnvironment;
-import com.laytonsmith.core.environments.Environment;
-import com.laytonsmith.core.exceptions.ConfigRuntimeException;
-import com.laytonsmith.core.functions.Exceptions.ExceptionType;
 import com.entityreborn.communication.Exceptions.InvalidChannelException;
 import com.entityreborn.communication.Exceptions.InvalidNameException;
 import com.entityreborn.communication.NodePoint;
 import com.entityreborn.communication.Publisher;
 import com.entityreborn.communication.Subscriber;
+import com.laytonsmith.PureUtilities.DaemonManager;
+import com.laytonsmith.annotations.api;
+import com.laytonsmith.core.CHVersion;
+import com.laytonsmith.core.constructs.CNull;
+import com.laytonsmith.core.constructs.Construct;
+import com.laytonsmith.core.constructs.Target;
+import com.laytonsmith.core.environments.CommandHelperEnvironment;
+import com.laytonsmith.core.environments.Environment;
 import com.laytonsmith.core.environments.GlobalEnv;
+import com.laytonsmith.core.exceptions.ConfigRuntimeException;
 import com.laytonsmith.core.functions.AbstractFunction;
 import com.laytonsmith.core.functions.Exceptions;
+import com.laytonsmith.core.functions.Exceptions.ExceptionType;
 import org.zeromq.ZMQ;
 import org.zeromq.ZMQException;
 
@@ -87,7 +87,7 @@ public class Functions {
                         Exceptions.ExceptionType.IOException, t);
             }
             
-            return new CVoid(t);
+            return CNull.NULL;
         }
 
         public String getName() {
@@ -143,7 +143,7 @@ public class Functions {
                         Exceptions.ExceptionType.IOException, t);
             }
             
-            return new CVoid(t);
+            return CNull.NULL;
         }
 
         public String getName() {
@@ -207,7 +207,7 @@ public class Functions {
                         Exceptions.ExceptionType.IOException, t);
             }
             
-            return new CVoid(t);
+            return CNull.NULL;
         }
 
         public String getName() {
@@ -261,7 +261,7 @@ public class Functions {
                         + " given to comm_close!", Exceptions.ExceptionType.NotFoundException, t);
             }
             
-            return new CVoid(t);
+            return CNull.NULL;
         }
 
         public String getName() {
@@ -310,7 +310,7 @@ public class Functions {
                         Exceptions.ExceptionType.IOException, t);
             }
             
-            return new CVoid(t);
+            return CNull.NULL;
         }
 
         public String getName() {
@@ -357,7 +357,7 @@ public class Functions {
                         Exceptions.ExceptionType.IOException, t);
             }
             
-            return new CVoid(t);
+            return CNull.NULL;
         }
 
         public String getName() {
@@ -408,7 +408,7 @@ public class Functions {
                         Exceptions.ExceptionType.IOException, t);
             }
             
-            return new CVoid(t);
+            return CNull.NULL;
         }
 
         public String getName() {

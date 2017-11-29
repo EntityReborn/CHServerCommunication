@@ -4,7 +4,7 @@
 
     <groupId>me.entityreborn</groupId>
     <artifactId>CHServerCommunication</artifactId>
-    <version>0.0.1</version>
+    <version>0.0.2</version>
     <packaging>jar</packaging>
 
     <name>CHServerCommunication</name>
@@ -42,7 +42,7 @@
                         </goals>
                         
                         <configuration>
-                            <minimizeJar>true</minimizeJar>
+                            <minimizeJar>false</minimizeJar>
                             <shadedArtifactAttached>false</shadedArtifactAttached>
                             <shadedClassifierName>Bundle</shadedClassifierName>
                             <artifactSet>
@@ -70,7 +70,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>me.entityreborn.chservercommunication.App</mainClass>
+                            <mainClass>me.entityreborn.chservercommunication.Publisher</mainClass>
                             <packageName>me.entityreborn.chservercommunication</packageName>
                         </manifest>
                         <manifestEntries>

@@ -1,4 +1,4 @@
-##Simple publish
+## Simple publish
 
 Server A's `main.ms`:
 	
@@ -30,7 +30,7 @@ to it's console:
 Calling `/publish2 Testing!` on Server A will have no affect on Server B because 
 B is not listening to `Channel2`.
 
-##Reverse connection
+## Reverse connection
 
 In the above example, Server A made it's publisher socket listen, and Server B's 
 subscriber connected to that publisher. Some network topographies, such as if A 
@@ -48,7 +48,7 @@ Server B's `main.ms`:
     comm_listen('example', 'tcp://localhost:5556', 'SUB')
     ...
 
-##Proxy (Hub) mode
+## Proxy (Hub) mode
 
 In the case that we want to use a central server to manage messages and share a 
 single message between multiple subscribers, we can use a proxy pattern. This 
@@ -94,7 +94,7 @@ dynamic discovery.
         console(@event)
     )
 
-##Pseudo two-way communication
+## Pseudo two-way communication
 
 Currently, the framework sockets are individually one way. A PUB socket can only 
 send to a SUB socket. But we can "abuse" this to create a pseudo two-way communication 
@@ -181,3 +181,18 @@ system: (This code is untested but in theory should work. YMMV)
 
 On Server A, calling /getplayers should return an array of players on Server B, 
 either sending the result to console or the player who called that alias.
+
+## Underlying data type
+
+CHSC by default uses a null separated string to pass it's information across the wire.
+This is being deprecated in favor of JSON, however we will leave null separated strings as the default for now.
+
+To change the type:
+
+    comm_setdatatype('ServerA', 'JSON')
+
+Valid values are `JSON` and `NULLSEPARATED`.
+
+To get the current type:
+
+    comm_getdatatype('ServerA')

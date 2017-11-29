@@ -13,6 +13,7 @@ import com.laytonsmith.PureUtilities.DaemonManager;
 import com.laytonsmith.annotations.api;
 import com.laytonsmith.core.CHVersion;
 import com.laytonsmith.core.constructs.CNull;
+import com.laytonsmith.core.constructs.CString;
 import com.laytonsmith.core.constructs.Construct;
 import com.laytonsmith.core.constructs.Target;
 import com.laytonsmith.core.environments.CommandHelperEnvironment;
@@ -276,6 +277,63 @@ public class Functions {
             return "void {name, type} Close. Type can be PUB or SUB."
                     + " This will disconnect any and all connections and binds"
                     + " related to this name for this type.";
+        }
+    }
+    
+    @api(environments = {CommandHelperEnvironment.class})
+    public static class comm_setdatatype extends CommFunc {
+        public Construct exec(Target t, Environment environment, 
+                Construct... args) throws ConfigRuntimeException {
+            if (args.length == 1) {
+                String stype = args[0].val().toUpperCase();
+
+                if (!"JSON".equals(stype) && !"NULLSEPARATED".equals(stype)) {
+                    throw new ConfigRuntimeException("You must specify JSON or NULLSEPARATED"
+                            + " for comm_setdatatype's first argument!", Exceptions.ExceptionType.NotFoundException, t);
+                }
+
+                if ("JSON".equals(stype)) {
+                    NodePoint.DataStructureType = NodePoint.DataType.Json;
+                } else {
+                    NodePoint.DataStructureType = NodePoint.DataType.NullSeparated;
+                }
+            }
+            
+            return CNull.NULL;
+        }
+
+        public String getName() {
+            return "comm_setdatatype";
+        }
+
+        public Integer[] numArgs() {
+            return new Integer[]{1};
+        }
+
+        public String docs() {
+            return "void {type} Type can be JSON or NULLSEPARATED."
+                    + " This changes the internal data type used to send messages.";
+        }
+    }
+    
+    @api(environments = {CommandHelperEnvironment.class})
+    public static class comm_getdatatype extends CommFunc {
+        public Construct exec(Target t, Environment environment, 
+                Construct... args) throws ConfigRuntimeException {
+            return CString.GetConstruct(NodePoint.DataStructureType.name().toUpperCase());
+        }
+
+        public String getName() {
+            return "comm_getdatatype";
+        }
+
+        public Integer[] numArgs() {
+            return new Integer[]{0};
+        }
+
+        public String docs() {
+            return "string {} Type will be JSON or NULLSEPARATED."
+                    + " This returns the internal data type used to send messages.";
         }
     }
     

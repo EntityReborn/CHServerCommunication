@@ -14,6 +14,13 @@ import org.zeromq.ZMQ.Socket;
  * @author import
  */
 public class NodePoint {
+    public static enum DataType {
+        NullSeparated,
+        Json
+    }
+    
+    public static DataType DataStructureType = DataType.NullSeparated;
+    
     protected Socket socket;
     private boolean isInited = false;
     protected Thread owningThread;

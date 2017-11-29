@@ -4,6 +4,7 @@ import com.entityreborn.communication.Exceptions.InvalidChannelException;
 import com.entityreborn.communication.Exceptions.InvalidNameException;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import org.json.simple.JSONObject;
 import org.zeromq.ZMQ;
 import org.zeromq.ZMQ.Context;
 import org.zeromq.ZMQException;
@@ -33,7 +34,19 @@ public class Publisher extends NodePoint implements Runnable {
             throw new InvalidChannelException(channel);
         }
         
-        String tosend = chan + '\0' + publisherId + '\0' + message;
+        String tosend;
+        if (NodePoint.DataStructureType == DataType.Json) {
+            JSONObject obj = new JSONObject();
+            
+            obj.put("channel", chan);
+            obj.put("publisherid", publisherId);
+            obj.put("message", message);
+            
+            tosend = obj.toJSONString();
+        } else {
+            tosend = chan + '\0' + publisherId + '\0' + message;
+        }
+        
         queue.add(tosend);
     }
     
@@ -78,6 +91,7 @@ public class Publisher extends NodePoint implements Runnable {
     }
     
     public static void main(String[] args) throws InterruptedException, InvalidChannelException {
+        NodePoint.DataStructureType = DataType.Json;
         Context context = ZMQ.context(1);
         
         Publisher pub = new Publisher("weather");
@@ -88,7 +102,7 @@ public class Publisher extends NodePoint implements Runnable {
         
         for (int i=0; i < 50; i++) {
             System.out.println("Publishing " + i);
-            pub.publish("weather1", "somedata " + i);
+            pub.publish("SomeChannel", "{12\'\"3#$#*somedata " + i);
             Thread.sleep(1000);
         }
         

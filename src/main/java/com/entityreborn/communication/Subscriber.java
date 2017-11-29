@@ -5,6 +5,10 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.zeromq.ZMQ;
 import org.zeromq.ZMQ.Context;
 
@@ -87,17 +91,47 @@ public class Subscriber extends NodePoint implements Runnable {
                 continue;
             }
             
-            String[] split = recv.split("\0", 3);
+            String channel;
+            String identifier;
+            String message;
+            boolean processed = false;
             
-            if (split.length != 3) {
-                Logger.getLogger(Subscriber.class.getName()).log(Level.WARNING, 
-                            "Malformed packet received. Skipping.");
-                continue;
+            if (recv.contains("\0")) {
+                String[] split = recv.split("\0", 3);
+            
+                if (split.length != 3) {
+                    Logger.getLogger(Subscriber.class.getName()).log(Level.WARNING, 
+                                "Malformed packet received. Skipping.");
+                    continue;
+                }
+            
+                channel = split[0];
+                identifier = split[1];
+                message = split[2];
+                
+                processed = true;
+            } else {
+                JSONParser parser = new JSONParser();
+                Object obj;
+                try {
+                    obj = parser.parse(recv);
+                } catch (ParseException ex) {
+                    Logger.getLogger(Subscriber.class.getName()).log(Level.WARNING, 
+                                "Malformed packet received. Skipping.");
+                    continue;
+                }
+                JSONObject data = (JSONObject)obj;
+                
+                if (!data.containsKey("channel") || !data.containsKey("publisherid") || !data.containsKey("message")) {
+                    Logger.getLogger(Subscriber.class.getName()).log(Level.WARNING, 
+                                "Malformed packet received. JSON object missing channel, publisherid or message component. Skipping.");
+                    continue;
+                }
+                
+                channel = data.get("channel").toString();
+                identifier = data.get("publisherid").toString();
+                message = data.get("message").toString();
             }
-            
-            String channel = split[0];
-            String identifier = split[1];
-            String message = split[2];
             
             for (MessageCallback toRun : callbacks) {
                 try {

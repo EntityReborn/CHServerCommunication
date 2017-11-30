@@ -47,13 +47,13 @@
                             <shadedClassifierName>Bundle</shadedClassifierName>
                             <artifactSet>
                                 <includes>
-                                    <include>org.jeromq:jeromq:jar:*</include>
+                                    <include>org.zeromq:*:*:*</include>
                                 </includes>
                             </artifactSet>
                             
                             <filters>
                                 <filter>
-                                    <artifact>org.jeromq:jeromq:jar:*</artifact>
+                                    <artifact>org.zeromq:*:*:*</artifact>
                                     <includes>
                                         <include>**/**</include>
                                     </includes>
@@ -163,6 +163,12 @@
             <groupId>org.zeromq</groupId>
             <artifactId>jeromq</artifactId>
             <version>0.4.3</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.zeromq</groupId>
+            <artifactId>jnacl</artifactId>
+            <version>0.1.0</version>
         </dependency>
     </dependencies>
 </project>

@@ -2,11 +2,15 @@ package com.entityreborn.communication;
 
 import com.entityreborn.communication.Exceptions.InvalidChannelException;
 import com.entityreborn.communication.Exceptions.InvalidNameException;
+import com.laytonsmith.extensions.chsc.Tracking;
+import static com.laytonsmith.extensions.chsc.Tracking.authentication;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import org.json.simple.JSONObject;
+import org.zeromq.ZAuth;
+import org.zeromq.ZCertStore;
+import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
-import org.zeromq.ZMQ.Context;
 import org.zeromq.ZMQException;
 
 public class Publisher extends NodePoint implements Runnable {
@@ -22,7 +26,7 @@ public class Publisher extends NodePoint implements Runnable {
         owningThread = new Thread(this, "publisher-" + publisherId);
     }
     
-    public void init(Context context) {
+    public void init(ZContext context) {
         super.init(context, ZMQ.PUB);
         socket.setIdentity(publisherId.getBytes());
     }
@@ -90,24 +94,37 @@ public class Publisher extends NodePoint implements Runnable {
         cleanup();
     }
     
-    public static void main(String[] args) throws InterruptedException, InvalidChannelException {
+    public static void main(String[] args) throws InterruptedException, InvalidChannelException, InvalidNameException {
         NodePoint.DataStructureType = DataType.Json;
-        Context context = ZMQ.context(1);
         
-        Publisher pub = new Publisher("weather");
+        ZContext context = new ZContext(1);
+        ZAuth auth = new ZAuth(context, new ZCertStore.Hasher());
+        auth.setVerbose(true);
+        
+        Tracking.setContext(context);
+        Tracking.setAuthenticator(auth);
+        
+        NodePoint np = Tracking.getOrCreate(null, ZMQ.PUB, "publisher");
+        Publisher pub = (Publisher)np;
+        
+        Tracking.getAuthenticator().configureCurve("C:\\temp\\certs");
+        pub.getSocket().setCurveServer(true);
+        pub.getSocket().setCurvePublicKey("lN*r8I=:FuY@FZ&Mdn]HoOE!v@jx7kJ##Pf{S9>l".getBytes());
+        pub.getSocket().setCurveSecretKey("^ddCQsU-ofAh(QMhwrvKFzauJ+}H-yzhH[7AK?^C".getBytes());
+            
         pub.init(context);
         pub.listen("tcp://*:5556");
         
         pub.start();
         
-        for (int i=0; i < 50; i++) {
+        for (int i=0; i < 100; i++) {
             System.out.println("Publishing " + i);
-            pub.publish("SomeChannel", "{12\'\"3#$#*somedata " + i);
+            pub.publish("SomeChannel", "data " + i);
             Thread.sleep(1000);
         }
         
         pub.stop();
-        
-        context.term();
+        auth.destroy();
+        context.destroy();
     }
 }

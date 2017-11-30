@@ -28,6 +28,10 @@ import java.util.Map;
 public class Events {
 
     private static void fireEvent(DaemonManager daemon, final BindableEvent event, final String name) {
+        if (daemon == null) {
+            return;
+        }
+        
         StaticLayer.GetConvertor().runOnMainThreadLater(daemon, new Runnable() {
             public void run() {
                 EventUtils.TriggerListener(Driver.EXTENSION, name, event);
@@ -36,6 +40,10 @@ public class Events {
     }
 
     public static void fireReceived(DaemonManager daemon, String subscriber, String channel, String publisher, String message) {
+        if (daemon == null) {
+            return;
+        }
+        
         RecvEvent event = new RecvEvent(subscriber, channel, publisher, message);
         fireEvent(daemon, event, "comm_received");
     }

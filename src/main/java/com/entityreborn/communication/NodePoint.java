@@ -6,7 +6,7 @@ package com.entityreborn.communication;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.zeromq.ZMQ.Context;
+import org.zeromq.ZContext;
 import org.zeromq.ZMQ.Socket;
 
 /**
@@ -60,14 +60,14 @@ public class NodePoint {
         return isInited;
     }
 
-    protected void init(Context context, int type) {
+    protected void init(ZContext context, int type) {
         if (isInited) {
             return;
         }
         
         this.type = type;
         
-        socket = context.socket(type);
+        socket = context.createSocket(type);
         isInited = true;
     }
     
@@ -81,5 +81,9 @@ public class NodePoint {
         if (this instanceof Publisher) {
             owningThread.interrupt();
         }
+    }
+    
+    public Socket getSocket() {
+        return socket;
     }
 }

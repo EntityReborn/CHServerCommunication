@@ -1,16 +1,18 @@
 package com.entityreborn.communication;
 
+import com.laytonsmith.extensions.chsc.Tracking;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.zeromq.ZAuth;
+import org.zeromq.ZCertStore;
+import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
-import org.zeromq.ZMQ.Context;
 
 public class Subscriber extends NodePoint implements Runnable {
     public static interface MessageCallback {
@@ -25,7 +27,7 @@ public class Subscriber extends NodePoint implements Runnable {
         this.name = name;
     }
     
-    public void init(Context context) {
+    public void init(ZContext context) {
         super.init(context, ZMQ.SUB);
     }
     
@@ -147,13 +149,29 @@ public class Subscriber extends NodePoint implements Runnable {
         cleanup();
     }
         
-    public static void main (String[] args) throws InterruptedException, Exceptions.InvalidChannelException {
-        Context context = ZMQ.context(1);
+    public static void main (String[] args) throws InterruptedException, Exceptions.InvalidChannelException, Exceptions.InvalidNameException {
+        NodePoint.DataStructureType = DataType.Json;
         
-        Subscriber sub = new Subscriber("testing");
+        ZContext context = new ZContext(1);
+        ZAuth auth = new ZAuth(context, new ZCertStore.Hasher());
+        auth.setVerbose(true);
+        
+        Tracking.setContext(context);
+        Tracking.setAuthenticator(auth);
+        
+        NodePoint np = Tracking.getOrCreate(null, ZMQ.SUB, "subscriber");
+        Subscriber sub = (Subscriber)np;
+        
+        Tracking.getAuthenticator().configureCurve("C:\\temp\\certs");
+        sub.getSocket().setCurvePublicKey("*!!G^&m%iDVXWGB>V7g$j$>9%C%JmXTefszSnXyU".getBytes());
+        sub.getSocket().setCurveSecretKey("Om]m<Khew8d*5[bML4R5St$Gkmt2LN*UM4TTXKjL".getBytes());
+        sub.getSocket().setCurveServerKey("lN*r8I=:FuY@FZ&Mdn]HoOE!v@jx7kJ##Pf{S9>l".getBytes());
+            
         sub.init(context);
-        sub.subscribe("*");
         sub.connect("tcp://localhost:5556");
+        sub.subscribe("*");
+        
+        sub.start();
         
         sub.addCallback(new MessageCallback() {
             public void process(String subscriber, String channel, String publisher, String message) {
@@ -162,14 +180,10 @@ public class Subscriber extends NodePoint implements Runnable {
             }
         });
         
-        sub.start();
+        Thread.sleep(10000);
         
-        Thread.sleep(5000);
-        
-        System.out.println("Stopping");
         sub.stop();
-        
-        System.out.println("Terminating");
-        context.term();
+        auth.destroy();
+        context.destroy();
     }
 }

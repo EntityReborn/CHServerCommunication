@@ -17,13 +17,16 @@ import com.laytonsmith.core.CHLog;
 import com.laytonsmith.core.constructs.Target;
 import com.laytonsmith.core.extensions.AbstractExtension;
 import com.laytonsmith.core.extensions.MSExtension;
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.zeromq.ZAuth;
+import org.zeromq.ZCertStore;
+import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
-import org.zeromq.ZMQ.Context;
 
 /**
  *
@@ -31,19 +34,30 @@ import org.zeromq.ZMQ.Context;
  */
 @MSExtension("CHServerCommunication")
 public class Tracking extends AbstractExtension {
-
+    private static File certDir;
+    
     @Override
     public void onStartup() {
         System.out.println("CHServerCommunication starting...");
-        context = ZMQ.context(1);
+        
+        context = new ZContext(1);
+        authentication = new ZAuth(context, new ZCertStore.Hasher());
+        authentication.setVerbose(true);
+        
+        certDir = new File(getConfigDir(), "certs");
+        if (!certDir.exists()) {
+            certDir.mkdirs();
+        }
+        
         System.out.println("CHServerCommunication started!");
     }
     
     @Override
     public void onShutdown() {
         System.out.println("CHServerCommunication shutting down...");
+        
         Set<String> keys = publishers.keySet();
-        for(String key : keys) { 
+        for (String key : keys) { 
             Publisher pub = publishers.get(key);
             pub.stop();
         }
@@ -64,15 +78,43 @@ public class Tracking extends AbstractExtension {
             Logger.getLogger(Tracking.class.getName()).log(Level.SEVERE, null, ex);
         }
         
-        context.term();
-        context = null;
+        if (authentication != null) {
+            authentication.destroy();
+            authentication = null;
+        }
+        
+        if (context != null) {
+            context.destroy();
+            context = null;
+        }
         
         System.out.println("CHServerCommunication shut down!");
     }
     
     private static final Map<String, Publisher> publishers = new HashMap<String, Publisher>();
     private static final Map<String, Subscriber> subscribers = new HashMap<String, Subscriber>();
-    public static Context context;
+    public static ZContext context;
+    public static ZAuth authentication;
+    
+    public static ZAuth getAuthenticator() {
+        return authentication;
+    }
+    
+    public static void setAuthenticator(ZAuth auth) {
+        authentication = auth;
+    }
+    
+    public static void configureCurve() {
+        authentication.configureCurve(certDir.getAbsolutePath());
+    }
+    
+    public static ZContext getContext() {
+        return context;
+    }
+    
+    public static void setContext(ZContext ctx) {
+        context = ctx;
+    }
     
     public static boolean hasPublisher(String name) throws InvalidNameException {
         if (!Util.isValidName(name)) {
@@ -119,7 +161,6 @@ public class Tracking extends AbstractExtension {
             if (retn == null) {
                 Publisher pub = new Publisher(name);
                 pub.init(context);
-                pub.start();
                 
                 publishers.put(name, pub);
                 return pub;
@@ -130,7 +171,6 @@ public class Tracking extends AbstractExtension {
             if (retn == null) {
                 Subscriber sub = new Subscriber(name);
                 sub.init(context);
-                sub.start();
                 
                 subscribers.put(name, sub);
 
@@ -172,6 +212,6 @@ public class Tracking extends AbstractExtension {
     }
 
     public Version getVersion() {
-        return new SimpleVersion(0,0,1);
+        return new SimpleVersion(0,0,2);
     }
 }

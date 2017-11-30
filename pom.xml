@@ -70,8 +70,8 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>me.entityreborn.chservercommunication.Publisher</mainClass>
-                            <packageName>me.entityreborn.chservercommunication</packageName>
+                            <mainClass>com.entityreborn.communication.CreateCert</mainClass>
+                            <packageName>com.entityreborn.communication</packageName>
                         </manifest>
                         <manifestEntries>
                             <mode>development</mode>

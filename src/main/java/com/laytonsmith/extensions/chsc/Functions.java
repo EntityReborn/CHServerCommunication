@@ -20,10 +20,14 @@ import com.laytonsmith.core.constructs.Target;
 import com.laytonsmith.core.environments.CommandHelperEnvironment;
 import com.laytonsmith.core.environments.Environment;
 import com.laytonsmith.core.environments.GlobalEnv;
+import com.laytonsmith.core.exceptions.CRE.CREFormatException;
+import com.laytonsmith.core.exceptions.CRE.CREIOException;
+import com.laytonsmith.core.exceptions.CRE.CREInsufficientArgumentsException;
+import com.laytonsmith.core.exceptions.CRE.CRENotFoundException;
+import com.laytonsmith.core.exceptions.CRE.CREThrowable;
 import com.laytonsmith.core.exceptions.ConfigRuntimeException;
 import com.laytonsmith.core.functions.AbstractFunction;
 import com.laytonsmith.core.functions.Exceptions;
-import com.laytonsmith.core.functions.Exceptions.ExceptionType;
 import org.zeromq.ZCert;
 import org.zeromq.ZMQ;
 import org.zeromq.ZMQException;
@@ -34,9 +38,9 @@ import org.zeromq.ZMQException;
  */
 public class Functions {
     public abstract static class CommFunc extends AbstractFunction {
-        public Exceptions.ExceptionType[] thrown() {
-            return new ExceptionType[]{ExceptionType.FormatException, 
-                ExceptionType.NotFoundException, ExceptionType.IOException};
+        public Class<? extends CREThrowable>[] thrown() {
+            return new Class[]{CREFormatException.class, 
+                CRENotFoundException.class, CREIOException.class};
         }
         
         public boolean isRestricted() {
@@ -61,8 +65,8 @@ public class Functions {
             int type = ZMQ.PUB;
 
             if (!"PUB".equals(stype) && !"SUB".equals(stype)) {
-                throw new ConfigRuntimeException("You must specify PUB or SUB"
-                        + " for comm_create's first argument!", Exceptions.ExceptionType.NotFoundException, t);
+                throw new CRENotFoundException("You must specify PUB or SUB"
+                        + " for comm_create's first argument!", t);
             }
 
             if ("SUB".equals(stype)) {
@@ -75,8 +79,8 @@ public class Functions {
             try {
                 node = Tracking.getOrCreate(daemon, type, name);
             } catch (InvalidNameException ex) {
-                throw new ConfigRuntimeException("Invalid name " + name + 
-                        " given to comm_listen!", Exceptions.ExceptionType.FormatException, t);
+                throw new CREFormatException("Invalid name " + name + 
+                        " given to comm_listen!", t);
             }
             
             return CNull.NULL;
@@ -107,8 +111,8 @@ public class Functions {
                 String stype = args[2].val().toUpperCase();
 
                 if (!"PUB".equals(stype) && !"SUB".equals(stype)) {
-                    throw new ConfigRuntimeException("You must specify PUB or SUB"
-                            + " for comm_listen's third argument!", Exceptions.ExceptionType.NotFoundException, t);
+                    throw new CRENotFoundException("You must specify PUB or SUB"
+                            + " for comm_listen's third argument!", t);
                 }
 
                 if ("SUB".equals(stype)) {
@@ -122,16 +126,15 @@ public class Functions {
             try {
                 node = Tracking.getOrCreate(daemon, type, name);
             } catch (InvalidNameException ex) {
-                throw new ConfigRuntimeException("Invalid name " + name + 
-                        " given to comm_listen!", Exceptions.ExceptionType.FormatException, t);
+                throw new CREFormatException("Invalid name " + name + 
+                        " given to comm_listen!", t);
             }
             
             try {
                 node.listen(endpoint);
                 node.start();
             } catch (ZMQException e) {
-                throw new ConfigRuntimeException("Exception while listening: " + e.getMessage(), 
-                        Exceptions.ExceptionType.IOException, t);
+                throw new CREIOException("Exception while listening: " + e.getMessage(), t);
             }
             
             return CNull.NULL;
@@ -164,8 +167,8 @@ public class Functions {
                 String stype = args[2].val().toUpperCase();
 
                 if (!"PUB".equals(stype) && !"SUB".equals(stype)) {
-                    throw new ConfigRuntimeException("You must specify PUB or SUB"
-                            + " for comm_connect's third argument!", Exceptions.ExceptionType.NotFoundException, t);
+                    throw new CRENotFoundException("You must specify PUB or SUB"
+                            + " for comm_connect's third argument!", t);
                 }
 
                 if ("PUB".equals(stype)) {
@@ -179,16 +182,15 @@ public class Functions {
             try {
                 node = Tracking.getOrCreate(daemon, type, name);
             } catch (InvalidNameException ex) {
-                throw new ConfigRuntimeException("Invalid name " + name + 
-                        " given to comm_connect!", Exceptions.ExceptionType.FormatException, t);
+                throw new CREFormatException("Invalid name " + name + 
+                        " given to comm_connect!", t);
             }
             
             try {
                 node.connect(endpoint);
                 node.start();
             } catch (ZMQException e) {
-                throw new ConfigRuntimeException("Exception while connecting: " + e.getMessage(), 
-                        Exceptions.ExceptionType.IOException, t);
+                throw new CREIOException("Exception while connecting: " + e.getMessage(), t);
             }
             
             return CNull.NULL;
@@ -221,8 +223,8 @@ public class Functions {
                 String stype = args[2].val().toUpperCase();
 
                 if (!"PUB".equals(stype) && !"SUB".equals(stype)) {
-                    throw new ConfigRuntimeException("You must specify PUB or SUB"
-                            + " for comm_disconnect's third argument!", Exceptions.ExceptionType.NotFoundException, t);
+                    throw new CRENotFoundException("You must specify PUB or SUB"
+                            + " for comm_disconnect's third argument!", t);
                 }
 
                 if ("PUB".equals(stype)) {
@@ -239,20 +241,19 @@ public class Functions {
                     node = Tracking.getSub(name);
                 }
             } catch (InvalidNameException ex) {
-                throw new ConfigRuntimeException("Invalid name " + name + 
-                        " given to comm_disconnect!", Exceptions.ExceptionType.FormatException, t);
+                throw new CREFormatException("Invalid name " + name + 
+                        " given to comm_disconnect!", t);
             }
             
             if (node == null) {
-                throw new ConfigRuntimeException("Unknown " + name + " "
-                        + " given to comm_disconnect!", Exceptions.ExceptionType.NotFoundException, t);
+                throw new CRENotFoundException("Unknown " + name + " "
+                        + " given to comm_disconnect!", t);
             }
             
             try {
                 node.disconnect(endpoint);
             } catch (ZMQException e) {
-                throw new ConfigRuntimeException("Exception while disconnecting: " + e.getMessage(), 
-                        Exceptions.ExceptionType.IOException, t);
+                throw new CREIOException("Exception while disconnecting: " + e.getMessage(), t);
             }
             
             return CNull.NULL;
@@ -283,8 +284,8 @@ public class Functions {
                 String stype = args[1].val().toUpperCase();
 
                 if (!"PUB".equals(stype) && !"SUB".equals(stype)) {
-                    throw new ConfigRuntimeException("You must specify PUB or SUB"
-                            + " for comm_close's second argument!", Exceptions.ExceptionType.NotFoundException, t);
+                    throw new CRENotFoundException("You must specify PUB or SUB"
+                            + " for comm_close's second argument!", t);
                 }
 
                 if ("PUB".equals(stype)) {
@@ -297,16 +298,15 @@ public class Functions {
             try {
                 found = Tracking.close(name, type);
             } catch (InvalidNameException ex) {
-                throw new ConfigRuntimeException("Invalid name " + name + 
-                        " given to comm_close!", Exceptions.ExceptionType.FormatException, t);
+                throw new CREFormatException("Invalid name " + name + 
+                        " given to comm_close!", t);
             } catch (ZMQException e) {
-                throw new ConfigRuntimeException("Exception while closing: " + e.getMessage(), 
-                        Exceptions.ExceptionType.IOException, t);
+                throw new CREIOException("Exception while closing: " + e.getMessage(), t);
             }
             
             if (!found) {
-                throw new ConfigRuntimeException("Unknown " + name + " "
-                        + " given to comm_close!", Exceptions.ExceptionType.NotFoundException, t);
+                throw new CRENotFoundException("Unknown " + name + " "
+                        + " given to comm_close!", t);
             }
             
             return CNull.NULL;
@@ -335,8 +335,8 @@ public class Functions {
                 String stype = args[0].val().toUpperCase();
 
                 if (!"JSON".equals(stype) && !"NULLSEPARATED".equals(stype)) {
-                    throw new ConfigRuntimeException("You must specify JSON or NULLSEPARATED"
-                            + " for comm_setdatatype's first argument!", Exceptions.ExceptionType.NotFoundException, t);
+                    throw new CRENotFoundException("You must specify JSON or NULLSEPARATED"
+                            + " for comm_setdatatype's first argument!", t);
                 }
 
                 if ("JSON".equals(stype)) {
@@ -396,23 +396,22 @@ public class Functions {
             try {
                 node = Tracking.getSub(name);
             } catch (InvalidNameException ex) {
-                throw new ConfigRuntimeException("Invalid name " + name + 
-                        " given to comm_subscribe!", Exceptions.ExceptionType.FormatException, t);
+                throw new CREFormatException("Invalid name " + name + 
+                        " given to comm_subscribe!", t);
             }
             
             if (node == null) {
-                throw new ConfigRuntimeException("Unknown SUB " + name + 
-                        " given to comm_subscribe!", Exceptions.ExceptionType.NotFoundException, t);
+                throw new CRENotFoundException("Unknown SUB " + name + 
+                        " given to comm_subscribe!", t);
             }
             
             try {
                 ((Subscriber)node).subscribe(channel);
             } catch (InvalidChannelException ex) {
-                throw new ConfigRuntimeException("Invalid channel " + channel + 
-                        " given to comm_subscribe!", Exceptions.ExceptionType.FormatException, t);
+                throw new CREFormatException("Invalid channel " + channel + 
+                        " given to comm_subscribe!", t);
             } catch (ZMQException e) {
-                throw new ConfigRuntimeException("Exception while subscribing: " + e.getMessage(), 
-                        Exceptions.ExceptionType.IOException, t);
+                throw new CREIOException("Exception while subscribing: " + e.getMessage(), t);
             }
             
             return CNull.NULL;
@@ -443,23 +442,22 @@ public class Functions {
             try {
                 node = Tracking.getSub(name);
             } catch (com.entityreborn.communication.Exceptions.InvalidNameException ex) {
-                throw new ConfigRuntimeException("Invalid name " + name + 
-                        " given to comm_unsubscribe!", Exceptions.ExceptionType.FormatException, t);
+                throw new CREFormatException("Invalid name " + name + 
+                        " given to comm_unsubscribe!", t);
             }
             
             if (node == null) {
-                throw new ConfigRuntimeException("Unknown SUB " + name + 
-                        " given to comm_unsubscribe!", Exceptions.ExceptionType.NotFoundException, t);
+                throw new CRENotFoundException("Unknown SUB " + name + 
+                        " given to comm_unsubscribe!", t);
             }
             
             try {
                 ((Subscriber)node).unsubscribe(channel);
             } catch (InvalidChannelException ex) {
-                throw new ConfigRuntimeException("Invalid channel " + channel + 
-                        " given to comm_subscribe!", Exceptions.ExceptionType.FormatException, t);
+                throw new CREFormatException("Invalid channel " + channel + 
+                        " given to comm_subscribe!", t);
             } catch (ZMQException e) {
-                throw new ConfigRuntimeException("Exception while unsubscribing: " + e.getMessage(), 
-                        Exceptions.ExceptionType.IOException, t);
+                throw new CREIOException("Exception while unsubscribing: " + e.getMessage(), t);
             }
             
             return CNull.NULL;
@@ -497,20 +495,19 @@ public class Functions {
                 node = Tracking.getPub(name);
             
                 if (node == null) {
-                    throw new ConfigRuntimeException("Unknown PUB " + name + 
-                            " given to comm_publish!", Exceptions.ExceptionType.NotFoundException, t);
+                    throw new CRENotFoundException("Unknown PUB " + name + 
+                            " given to comm_publish!", t);
                 }
                 
                 ((Publisher)node).publish(channel, message, origpub);
             } catch (InvalidChannelException ex) {
-                throw new ConfigRuntimeException("Invalid channel " + channel + 
-                        " given to comm_publish!", Exceptions.ExceptionType.FormatException, t);
+                throw new CREFormatException("Invalid channel " + channel + 
+                        " given to comm_publish!", t);
             } catch (InvalidNameException ex) {
-                throw new ConfigRuntimeException("Invalid name " + name + 
-                        " given to comm_publish!", Exceptions.ExceptionType.FormatException, t);
+                throw new CREFormatException("Invalid name " + name + 
+                        " given to comm_publish!", t);
             } catch (ZMQException e) {
-                throw new ConfigRuntimeException("Exception while publishing: " + e.getMessage(), 
-                        Exceptions.ExceptionType.IOException, t);
+                throw new CREIOException("Exception while publishing: " + e.getMessage(), t);
             }
             
             return CNull.NULL;
@@ -576,20 +573,20 @@ public class Functions {
                     node = Tracking.getSub(name);
                     
                     if (node == null) {
-                        throw new ConfigRuntimeException("Unknown SUB " + name + 
-                            " given to comm_configsecurity!", Exceptions.ExceptionType.NotFoundException, t);
+                        throw new CRENotFoundException("Unknown SUB " + name + 
+                            " given to comm_configsecurity!", t);
                     }
                     
                     if (serverkey == null) {
-                        throw new ConfigRuntimeException("Serverkey wasn't specified for"
-                                + " comm_configuresecurity!", Exceptions.ExceptionType.InsufficientArgumentsException, t);
+                        throw new CREInsufficientArgumentsException("Serverkey wasn't specified for"
+                                + " comm_configuresecurity!", t);
                     }
                 } else if ("PUB".equalsIgnoreCase(type)){
                     node = Tracking.getPub(name);
                     
                     if (node == null) {
-                        throw new ConfigRuntimeException("Unknown PUB " + name + 
-                            " given to comm_configsecurity!", Exceptions.ExceptionType.NotFoundException, t);
+                        throw new CRENotFoundException("Unknown PUB " + name + 
+                            " given to comm_configsecurity!", t);
                     }
                     
                     if (serverkey != null) {
@@ -598,12 +595,12 @@ public class Functions {
                     
                     node.getSocket().setCurveServer(true);
                 } else {
-                    throw new ConfigRuntimeException("Unknown type: " + type + 
-                            " given to comm_configuresecurity!", Exceptions.ExceptionType.NotFoundException, t);
+                    throw new CRENotFoundException("Unknown type: " + type + 
+                            " given to comm_configuresecurity!", t);
                 }
             } catch (InvalidNameException ex) {
-                throw new ConfigRuntimeException("Unknown " + type + " " + name + 
-                            " given to comm_configuresecurity!", Exceptions.ExceptionType.NotFoundException, t);
+                throw new CRENotFoundException("Unknown " + type + " " + name + 
+                            " given to comm_configuresecurity!", t);
             }
             
             Tracking.configureCurve();

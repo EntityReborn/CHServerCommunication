@@ -586,7 +586,7 @@ public class Functions {
                 node = Tracking.getNode(name);
             } catch (InvalidNameException ex) {
                 throw new CREFormatException("Invalid name " + name + 
-                        " given to comm_unsubscribe!", t);
+                        " given to comm_configsecurity!", t);
             }
 
             if (node == null) {
@@ -596,11 +596,11 @@ public class Functions {
 
             if (node instanceof Subscriber && serverkey == null) {
                 throw new CREInsufficientArgumentsException("Serverkey wasn't specified for"
-                        + " comm_configuresecurity!", t);
+                        + " comm_configsecurity!", t);
             }
 
             if (node instanceof Publisher && serverkey != null) {
-                System.out.println("Ignoring serverkey provided for comm_configuresecurity. Not needed!");
+                System.out.println("Ignoring serverkey provided for comm_configsecurity. Not needed!");
             }
             
             Boolean curveServer = node instanceof Publisher;
@@ -637,11 +637,13 @@ public class Functions {
         }
 
         public String docs() {
-            return "void {type, name, publickey, secretkey[, serverkey]} Setup node named <name>"
+            return "void {name, publickey, secretkey[, serverkey][, options]} Setup node named <name>"
                     + " for certificate based encryption and authorization. Use comm_gencert to generate values"
                     + " for publickey and secretkey. PUBs should have SUBs public cert file in their ./cert directory"
                     + " or authentication will fail. SUBs must specify have the PUBs publickey specified here for the"
-                    + " serverkey argument.";
+                    + " serverkey argument. <serverkey> is required for SUBs, and is the public key of the server connecting to."
+                    + " <options> can be an array, containing curve-server (boolean, defaults to false for SUBs and true"
+                    + " for PUBs) and zap-domain (string, defaults to 'global'.)";
         }
     }
 }

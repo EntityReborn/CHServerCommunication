@@ -13,6 +13,7 @@ import com.laytonsmith.PureUtilities.DaemonManager;
 import com.laytonsmith.annotations.api;
 import com.laytonsmith.core.CHVersion;
 import com.laytonsmith.core.constructs.CArray;
+import com.laytonsmith.core.constructs.CBoolean;
 import com.laytonsmith.core.constructs.CNull;
 import com.laytonsmith.core.constructs.CString;
 import com.laytonsmith.core.constructs.Construct;
@@ -559,9 +560,25 @@ public class Functions {
             String publickey = args[1].val();
             String secretkey = args[2].val();
             String serverkey = null;
+            CArray options = new CArray(t);
+            
+            /*
+                options:
+                    curve-server (boolean): whether this security configuration should be authorative for who connects.
+                                            Really only makes sense for listeners. Defaults to true for Publishers.
+                    zap-domain (string): what ZAP domain to listen to. Defaults to "globlal".
+            
+            */
             
             if (args.length == 4) {
+                if (args[3] instanceof CString) {
+                    serverkey = args[3].val();
+                } else if (args[3] instanceof CArray) {
+                    options = (CArray)args[3];
+                }
+            } else if (args.length == 5) {
                 serverkey = args[3].val();
+                options = (CArray)args[4];
             }
 
             NodePoint node;
@@ -585,18 +602,26 @@ public class Functions {
             if (node instanceof Publisher && serverkey != null) {
                 System.out.println("Ignoring serverkey provided for comm_configuresecurity. Not needed!");
             }
-
-            if (node instanceof Publisher) {
-                node.getSocket().setCurveServer(true);
+            
+            Boolean curveServer = node instanceof Publisher;
+            if (options.containsKey("curve-server") && options.get("curve-server", t) instanceof CBoolean) {
+                curveServer = ((CBoolean)options.get("curve-server", t)).getBoolean();
             }
+            
+            node.getSocket().setCurveServer(curveServer);
             
             Tracking.configureCurve();
             
-            node.getSocket().setZAPDomain("global");
+            String zapDomain = "global";
+            if (options.containsKey("zap-domain") && options.get("zap-domain", t) instanceof CString) {
+                zapDomain = (options.get("zap-domain", t).val());
+            }
+            
+            node.getSocket().setZAPDomain(zapDomain);
             node.getSocket().setCurvePublicKey(publickey.getBytes());
             node.getSocket().setCurveSecretKey(secretkey.getBytes());
             
-            if (node instanceof Subscriber && serverkey != null) {
+            if (serverkey != null) {
                 node.getSocket().setCurveServerKey(serverkey.getBytes());
             }
             
@@ -608,7 +633,7 @@ public class Functions {
         }
 
         public Integer[] numArgs() {
-            return new Integer[]{4, 5};
+            return new Integer[]{3, 4, 5};
         }
 
         public String docs() {

@@ -38,7 +38,7 @@ public class Tracking extends AbstractExtension {
     
     @Override
     public void onStartup() {
-        System.out.println("CHServerCommunication starting...");
+        System.out.println("CHServerCommunication starting up...");
         
         context = new ZContext(1);
         authentication = new ZAuth(context, new ZCertStore.Hasher());
@@ -56,21 +56,13 @@ public class Tracking extends AbstractExtension {
     public void onShutdown() {
         System.out.println("CHServerCommunication shutting down...");
         
-        Set<String> keys = publishers.keySet();
+        Set<String> keys = nodes.keySet();
         for (String key : keys) { 
-            Publisher pub = publishers.get(key);
+            NodePoint pub = nodes.get(key);
             pub.stop();
         }
         
-        publishers.clear();
-        
-        keys = subscribers.keySet();
-        for (String key : keys) {
-            Subscriber sub = subscribers.get(key);
-            sub.stop();
-        }
-        
-        subscribers.clear();
+        nodes.clear();
         
         try {
             Thread.sleep(1000);
@@ -91,8 +83,7 @@ public class Tracking extends AbstractExtension {
         System.out.println("CHServerCommunication shut down!");
     }
     
-    private static final Map<String, Publisher> publishers = new HashMap<String, Publisher>();
-    private static final Map<String, Subscriber> subscribers = new HashMap<String, Subscriber>();
+    private static final Map<String, NodePoint> nodes = new HashMap<String, NodePoint>();
     public static ZContext context;
     public static ZAuth authentication;
     
@@ -121,7 +112,7 @@ public class Tracking extends AbstractExtension {
             throw new InvalidNameException(name);
         }
         
-        return publishers.containsKey(name);
+        return nodes.containsKey(name);
     }
     
     public static boolean hasSubscriber(String name) throws InvalidNameException {
@@ -129,59 +120,49 @@ public class Tracking extends AbstractExtension {
             throw new InvalidNameException(name);
         }
         
-        return subscribers.containsKey(name);
+        return nodes.containsKey(name) && nodes.get(name) instanceof Publisher;
     }
     
-    public static Publisher getPub(String name) throws InvalidNameException {
+    public static NodePoint getNode(String name) throws InvalidNameException {
         if (!Util.isValidName(name)) {
             throw new InvalidNameException(name);
         }
         
-        return publishers.get(name);
-    }
-    
-    public static Subscriber getSub(String name) throws InvalidNameException {
-        if (!Util.isValidName(name)) {
-            throw new InvalidNameException(name);
-        }
-        
-        return subscribers.get(name);
+        return nodes.get(name);
     }
     
     public static NodePoint getOrCreate(final DaemonManager daemon, int type, String name) throws InvalidNameException {
-        NodePoint retn = null;
+        NodePoint retn;
         
         if (!Util.isValidName(name)) {
             throw new InvalidNameException(name);
         }
         
+        retn = getNode(name);
+        
+        if (retn != null) {
+            return retn;
+        }
+        
         if (type == ZMQ.PUB) {
-            retn = getPub(name);
-            
-            if (retn == null) {
-                Publisher pub = new Publisher(name);
-                pub.init(context);
-                
-                publishers.put(name, pub);
-                return pub;
-            }
-        } else if (type == ZMQ.SUB) {
-            retn = getSub(name);
-            
-            if (retn == null) {
-                Subscriber sub = new Subscriber(name);
-                sub.init(context);
-                
-                subscribers.put(name, sub);
+            Publisher pub = new Publisher(name);
+            pub.init(context);
 
-                sub.addCallback(new MessageCallback() {
-                    public void process(String subscriber, String channel, String publisher, String message) {
-                        Events.fireReceived(daemon, subscriber, channel, publisher, message);
-                    }
-                });
-                
-                return sub;
-            }
+            nodes.put(name, pub);
+            return pub;
+        } else if (type == ZMQ.SUB) {
+            Subscriber sub = new Subscriber(name);
+            sub.init(context);
+
+            nodes.put(name, sub);
+
+            sub.addCallback(new MessageCallback() {
+                public void process(String subscriber, String channel, String publisher, String message) {
+                    Events.fireReceived(daemon, subscriber, channel, publisher, message);
+                }
+            });
+
+            return sub;
         }
         
         CHLog.GetLogger().i(CHLog.Tags.RUNTIME, name + " was not created!", Target.UNKNOWN);
@@ -189,20 +170,17 @@ public class Tracking extends AbstractExtension {
         return retn;
     }
 
-    public static boolean close(String name, int type) throws InvalidNameException {
-        NodePoint node = null;
+    public static boolean close(String name) throws InvalidNameException {
+        NodePoint node;
         
         if (!Util.isValidName(name)) {
             throw new InvalidNameException(name);
         }
         
-        if (type == ZMQ.PUB) {
-            node = publishers.remove(name);
-        } else if (type == ZMQ.SUB) {
-            node = subscribers.remove(name);
-        }
+        node = getNode(name);
         
         if (node != null) {
+            nodes.remove(name);
             node.stop();
             
             return true;

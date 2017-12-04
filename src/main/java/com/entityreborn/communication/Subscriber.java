@@ -96,7 +96,6 @@ public class Subscriber extends NodePoint implements Runnable {
             String channel;
             String identifier;
             String message;
-            boolean processed = false;
             
             if (recv.contains("\0")) {
                 String[] split = recv.split("\0", 3);
@@ -110,8 +109,6 @@ public class Subscriber extends NodePoint implements Runnable {
                 channel = split[0];
                 identifier = split[1];
                 message = split[2];
-                
-                processed = true;
             } else {
                 JSONParser parser = new JSONParser();
                 Object obj;

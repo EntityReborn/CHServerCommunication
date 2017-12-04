@@ -3,7 +3,6 @@ package com.entityreborn.communication;
 import com.entityreborn.communication.Exceptions.InvalidChannelException;
 import com.entityreborn.communication.Exceptions.InvalidNameException;
 import com.laytonsmith.extensions.chsc.Tracking;
-import static com.laytonsmith.extensions.chsc.Tracking.authentication;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import org.json.simple.JSONObject;
@@ -31,27 +30,8 @@ public class Publisher extends NodePoint implements Runnable {
         socket.setIdentity(publisherId.getBytes());
     }
     
-    public void publish(String channel, String message) throws InvalidChannelException {
-        String chan = channel.trim();
-        
-        if(!Util.isValidChannel(channel)) {
-            throw new InvalidChannelException(channel);
-        }
-        
-        String tosend;
-        if (NodePoint.DataStructureType == DataType.Json) {
-            JSONObject obj = new JSONObject();
-            
-            obj.put("channel", chan);
-            obj.put("publisherid", publisherId);
-            obj.put("message", message);
-            
-            tosend = obj.toJSONString();
-        } else {
-            tosend = chan + '\0' + publisherId + '\0' + message;
-        }
-        
-        queue.add(tosend);
+    public void publish(String channel, String message) throws InvalidChannelException, InvalidNameException {
+        publish(channel, message, publisherId);
     }
     
     public void publish(String channel, String message, String origpub) throws InvalidNameException, InvalidChannelException {
@@ -65,7 +45,20 @@ public class Publisher extends NodePoint implements Runnable {
             throw new InvalidChannelException(channel);
         }
         
-        String tosend = chan + '\0' + origpub + '\0' + message;
+        String tosend;
+        
+        if (NodePoint.DataStructureType == DataType.Json) {
+            JSONObject obj = new JSONObject();
+            
+            obj.put("channel", chan);
+            obj.put("publisherid", origpub);
+            obj.put("message", message);
+            
+            tosend = obj.toJSONString();
+        } else {
+            tosend = chan + '\0' + origpub + '\0' + message;
+        }
+        
         queue.add(tosend);
     }
     

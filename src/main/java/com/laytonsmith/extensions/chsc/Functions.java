@@ -28,6 +28,8 @@ import com.laytonsmith.core.exceptions.CRE.CREThrowable;
 import com.laytonsmith.core.exceptions.ConfigRuntimeException;
 import com.laytonsmith.core.functions.AbstractFunction;
 import com.laytonsmith.core.functions.Exceptions;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.zeromq.ZCert;
 import org.zeromq.ZMQ;
 import org.zeromq.ZMQException;
@@ -235,11 +237,7 @@ public class Functions {
             NodePoint node;
             
             try {
-                if (type == ZMQ.PUB) {
-                    node = Tracking.getPub(name);
-                } else {
-                    node = Tracking.getSub(name);
-                }
+                node = Tracking.getNode(name);
             } catch (InvalidNameException ex) {
                 throw new CREFormatException("Invalid name " + name + 
                         " given to comm_disconnect!", t);
@@ -268,8 +266,7 @@ public class Functions {
         }
 
         public String docs() {
-            return "void {name, endpoint[, type]} Disconnect. Type can be PUB or"
-                    + " SUB, but defaults to SUB.";
+            return "void {name, endpoint} Disconnect.";
         }
     }
     
@@ -278,25 +275,11 @@ public class Functions {
         public Construct exec(Target t, Environment environment, 
                 Construct... args) throws ConfigRuntimeException {
             String name = args[0].val();
-            int type = ZMQ.SUB;
-            
-            if (args.length == 2) {
-                String stype = args[1].val().toUpperCase();
-
-                if (!"PUB".equals(stype) && !"SUB".equals(stype)) {
-                    throw new CRENotFoundException("You must specify PUB or SUB"
-                            + " for comm_close's second argument!", t);
-                }
-
-                if ("PUB".equals(stype)) {
-                    type = ZMQ.PUB;
-                }
-            }
             
             boolean found;
             
             try {
-                found = Tracking.close(name, type);
+                found = Tracking.close(name);
             } catch (InvalidNameException ex) {
                 throw new CREFormatException("Invalid name " + name + 
                         " given to comm_close!", t);
@@ -321,7 +304,7 @@ public class Functions {
         }
 
         public String docs() {
-            return "void {name, type} Close. Type can be PUB or SUB."
+            return "void {name} Close."
                     + " This will disconnect any and all connections and binds"
                     + " related to this name for this type.";
         }
@@ -394,7 +377,7 @@ public class Functions {
             NodePoint node;
             
             try {
-                node = Tracking.getSub(name);
+                node = Tracking.getNode(name);
             } catch (InvalidNameException ex) {
                 throw new CREFormatException("Invalid name " + name + 
                         " given to comm_subscribe!", t);
@@ -403,6 +386,11 @@ public class Functions {
             if (node == null) {
                 throw new CRENotFoundException("Unknown SUB " + name + 
                         " given to comm_subscribe!", t);
+            }
+            
+            if (!(node instanceof Subscriber)) {
+                throw new CRENotFoundException(name + 
+                        " given to comm_subscribe is not a subscriber!", t);
             }
             
             try {
@@ -440,7 +428,7 @@ public class Functions {
             NodePoint node;
             
             try {
-                node = Tracking.getSub(name);
+                node = Tracking.getNode(name);
             } catch (com.entityreborn.communication.Exceptions.InvalidNameException ex) {
                 throw new CREFormatException("Invalid name " + name + 
                         " given to comm_unsubscribe!", t);
@@ -449,6 +437,11 @@ public class Functions {
             if (node == null) {
                 throw new CRENotFoundException("Unknown SUB " + name + 
                         " given to comm_unsubscribe!", t);
+            }
+            
+            if (!(node instanceof Subscriber)) {
+                throw new CRENotFoundException(name + 
+                        " given to comm_unsubscribe is not a subscriber!", t);
             }
             
             try {
@@ -492,11 +485,16 @@ public class Functions {
             NodePoint node;
             
             try {
-                node = Tracking.getPub(name);
+                node = Tracking.getNode(name);
             
                 if (node == null) {
                     throw new CRENotFoundException("Unknown PUB " + name + 
                             " given to comm_publish!", t);
+                }
+                
+                if (!(node instanceof Publisher)) {
+                    throw new CRENotFoundException(name + 
+                            " given to comm_publish is not a publisher!", t);
                 }
                 
                 ((Publisher)node).publish(channel, message, origpub);
@@ -557,50 +555,39 @@ public class Functions {
     public static class comm_configsecurity extends CommFunc {
         public Construct exec(Target t, Environment environment, 
                 Construct... args) throws ConfigRuntimeException {
-            String type = args[0].val();
-            String name = args[1].val();
-            String publickey = args[2].val();
-            String secretkey = args[3].val();
+            String name = args[0].val();
+            String publickey = args[1].val();
+            String secretkey = args[2].val();
             String serverkey = null;
             
-            if (args.length == 5) {
-                serverkey = args[4].val();
+            if (args.length == 4) {
+                serverkey = args[3].val();
             }
 
             NodePoint node;
             try {
-                if ("SUB".equalsIgnoreCase(type)) {
-                    node = Tracking.getSub(name);
-                    
-                    if (node == null) {
-                        throw new CRENotFoundException("Unknown SUB " + name + 
-                            " given to comm_configsecurity!", t);
-                    }
-                    
-                    if (serverkey == null) {
-                        throw new CREInsufficientArgumentsException("Serverkey wasn't specified for"
-                                + " comm_configuresecurity!", t);
-                    }
-                } else if ("PUB".equalsIgnoreCase(type)){
-                    node = Tracking.getPub(name);
-                    
-                    if (node == null) {
-                        throw new CRENotFoundException("Unknown PUB " + name + 
-                            " given to comm_configsecurity!", t);
-                    }
-                    
-                    if (serverkey != null) {
-                        System.out.println("Ignoring serverkey provided for comm_configuresecurity. Not needed!");
-                    }
-                    
-                    node.getSocket().setCurveServer(true);
-                } else {
-                    throw new CRENotFoundException("Unknown type: " + type + 
-                            " given to comm_configuresecurity!", t);
-                }
+                node = Tracking.getNode(name);
             } catch (InvalidNameException ex) {
-                throw new CRENotFoundException("Unknown " + type + " " + name + 
-                            " given to comm_configuresecurity!", t);
+                throw new CREFormatException("Invalid name " + name + 
+                        " given to comm_unsubscribe!", t);
+            }
+
+            if (node == null) {
+                throw new CRENotFoundException("Unknown " + name + 
+                    " given to comm_configsecurity!", t);
+            }
+
+            if (node instanceof Subscriber && serverkey == null) {
+                throw new CREInsufficientArgumentsException("Serverkey wasn't specified for"
+                        + " comm_configuresecurity!", t);
+            }
+
+            if (node instanceof Publisher && serverkey != null) {
+                System.out.println("Ignoring serverkey provided for comm_configuresecurity. Not needed!");
+            }
+
+            if (node instanceof Publisher) {
+                node.getSocket().setCurveServer(true);
             }
             
             Tracking.configureCurve();
@@ -609,7 +596,7 @@ public class Functions {
             node.getSocket().setCurvePublicKey(publickey.getBytes());
             node.getSocket().setCurveSecretKey(secretkey.getBytes());
             
-            if ("SUB".equalsIgnoreCase(type) && serverkey != null) {
+            if (node instanceof Subscriber && serverkey != null) {
                 node.getSocket().setCurveServerKey(serverkey.getBytes());
             }
             
@@ -625,7 +612,7 @@ public class Functions {
         }
 
         public String docs() {
-            return "void {type, name, publickey, secretkey[, serverkey]} Setup <type> named <name>"
+            return "void {type, name, publickey, secretkey[, serverkey]} Setup node named <name>"
                     + " for certificate based encryption and authorization. Use comm_gencert to generate values"
                     + " for publickey and secretkey. PUBs should have SUBs public cert file in their ./cert directory"
                     + " or authentication will fail. SUBs must specify have the PUBs publickey specified here for the"

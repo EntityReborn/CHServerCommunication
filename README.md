@@ -20,7 +20,7 @@ General design thoughts: [here][design]
 
 Example network topography: [here][topo]
 
-[builds]: http://build.zeoldcraft.com/job/CHServerCommunication/
+[builds]: https://letsbuild.net/jenkins/job/CHServerCommunication/
 [examples]: https://github.com/EntityReborn/CHServerCommunication/blob/master/Examples.md
 [funcs]: https://docs.google.com/spreadsheet/ccc?key=0AjO4owzyFgGzdEFROHZjRm5GcTEwanRPUVc0NF9uU1E#gid=0
 [design]: https://docs.google.com/document/d/1UmSIYHjARkOAsXQaK6oaWMW20zdG1WVmEikLvZUd58o

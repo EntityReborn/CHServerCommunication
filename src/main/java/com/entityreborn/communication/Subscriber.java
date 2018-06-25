@@ -38,21 +38,11 @@ public class Subscriber extends NodePoint implements Runnable {
     public void remCallback(MessageCallback toRun) {
         callbacks.remove(toRun);
     }
-    
-    private String sanitizeChannel(String channel) {
-        String chan = channel.trim();
-        
-        if (channel.equals("*")) {
-            chan = "";
-        }
-        
-        return chan;
-    }
 
     @Override
     public void connect(String endpoint) {
         super.connect(endpoint);
-        socket.subscribe("*");
+        socket.subscribe("");
     }
 
     public void run() {
@@ -83,40 +73,26 @@ public class Subscriber extends NodePoint implements Runnable {
             String identifier;
             String message;
             
-            if (recv.contains("\0")) {
-                String[] split = recv.split("\0", 3);
-            
-                if (split.length != 3) {
-                    Logger.getLogger(Subscriber.class.getName()).log(Level.WARNING, 
-                                "Malformed packet received. Skipping.");
-                    continue;
-                }
-            
-                channel = split[0];
-                identifier = split[1];
-                message = split[2];
-            } else {
-                JSONParser parser = new JSONParser();
-                Object obj;
-                try {
-                    obj = parser.parse(recv);
-                } catch (ParseException ex) {
-                    Logger.getLogger(Subscriber.class.getName()).log(Level.WARNING, 
-                                "Malformed packet received. Skipping.");
-                    continue;
-                }
-                JSONObject data = (JSONObject)obj;
-                
-                if (!data.containsKey("channel") || !data.containsKey("publisherid") || !data.containsKey("message")) {
-                    Logger.getLogger(Subscriber.class.getName()).log(Level.WARNING, 
-                                "Malformed packet received. JSON object missing channel, publisherid or message component. Skipping.");
-                    continue;
-                }
-                
-                channel = data.get("channel").toString();
-                identifier = data.get("publisherid").toString();
-                message = data.get("message").toString();
+            JSONParser parser = new JSONParser();
+            Object obj;
+            try {
+                obj = parser.parse(recv);
+            } catch (ParseException ex) {
+                Logger.getLogger(Subscriber.class.getName()).log(Level.WARNING,
+                            "Malformed packet received. Skipping.");
+                continue;
             }
+            JSONObject data = (JSONObject)obj;
+
+            if (!data.containsKey("channel") || !data.containsKey("publisherid") || !data.containsKey("message")) {
+                Logger.getLogger(Subscriber.class.getName()).log(Level.WARNING,
+                            "Malformed packet received. JSON object missing channel, publisherid or message component. Skipping.");
+                continue;
+            }
+
+            channel = data.get("channel").toString();
+            identifier = data.get("publisherid").toString();
+            message = data.get("message").toString();
             
             for (MessageCallback toRun : callbacks) {
                 try {
@@ -133,8 +109,6 @@ public class Subscriber extends NodePoint implements Runnable {
     }
         
     public static void main (String[] args) throws InterruptedException, Exceptions.InvalidChannelException, Exceptions.InvalidNameException {
-        NodePoint.DataStructureType = DataType.Json;
-        
         ZContext context = new ZContext(1);
         ZAuth auth = new ZAuth(context, new ZCertStore.Hasher());
         auth.setVerbose(true);
@@ -152,7 +126,6 @@ public class Subscriber extends NodePoint implements Runnable {
             
         sub.init(context);
         sub.connect("tcp://localhost:5556");
-        sub.subscribe("*");
         
         sub.start();
         

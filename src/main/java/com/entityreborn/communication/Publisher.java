@@ -44,20 +44,14 @@ public class Publisher extends NodePoint implements Runnable {
         if(!Util.isValidChannel(channel)) {
             throw new InvalidChannelException(channel);
         }
-        
-        String tosend;
-        
-        if (NodePoint.DataStructureType == DataType.Json) {
-            JSONObject obj = new JSONObject();
+
+        JSONObject obj = new JSONObject();
             
-            obj.put("channel", chan);
-            obj.put("publisherid", origpub);
-            obj.put("message", message);
-            
-            tosend = obj.toJSONString();
-        } else {
-            tosend = chan + '\0' + origpub + '\0' + message;
-        }
+        obj.put("channel", chan);
+        obj.put("publisherid", origpub);
+        obj.put("message", message);
+
+        String tosend = obj.toJSONString();
         
         queue.add(tosend);
     }
@@ -87,8 +81,6 @@ public class Publisher extends NodePoint implements Runnable {
     }
     
     public static void main(String[] args) throws InterruptedException, InvalidChannelException, InvalidNameException {
-        NodePoint.DataStructureType = DataType.Json;
-        
         ZContext context = new ZContext(1);
         ZAuth auth = new ZAuth(context, new ZCertStore.Hasher());
         auth.setVerbose(true);

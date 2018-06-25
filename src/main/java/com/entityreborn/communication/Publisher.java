@@ -61,8 +61,7 @@ public class Publisher extends NodePoint implements Runnable {
         
         queue.add(tosend);
     }
-    
-    @Override
+
     public void run() {
         while (!Thread.currentThread().isInterrupted() && alive) {
             String tosend;

@@ -42,31 +42,17 @@ public class Subscriber extends NodePoint implements Runnable {
     private String sanitizeChannel(String channel) {
         String chan = channel.trim();
         
-        if (!channel.equals("*")) {
-            chan += '\0';
-        } else {
+        if (channel.equals("*")) {
             chan = "";
         }
         
         return chan;
     }
-    
-    public void subscribe(String channel) throws Exceptions.InvalidChannelException {
-        if (!Util.isValidChannel(channel)) {
-            throw new Exceptions.InvalidChannelException(channel);
-        }
-        
-        String chan = sanitizeChannel(channel);
-        socket.subscribe(chan.getBytes());
-    }
-    
-    public void unsubscribe(String channel) throws Exceptions.InvalidChannelException {
-        if (!Util.isValidChannel(channel)) {
-            throw new Exceptions.InvalidChannelException(channel);
-        }
-        
-        String chan = sanitizeChannel(channel);
-        socket.unsubscribe(chan.getBytes());
+
+    @Override
+    public void connect(String endpoint) {
+        super.connect(endpoint);
+        socket.subscribe("*");
     }
 
     public void run() {

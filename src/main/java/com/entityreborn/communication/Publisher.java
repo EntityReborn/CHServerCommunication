@@ -6,15 +6,11 @@ import com.laytonsmith.extensions.chsc.Tracking;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import org.json.simple.JSONObject;
-import org.zeromq.ZAuth;
-import org.zeromq.ZCertStore;
-import org.zeromq.ZContext;
-import org.zeromq.ZMQ;
-import org.zeromq.ZMQException;
+import org.zeromq.*;
 
 public class Publisher extends NodePoint implements Runnable {
     private final String publisherId;
-    private final BlockingQueue<String> queue = new LinkedBlockingQueue<String>();;
+    private final BlockingQueue<String> queue = new LinkedBlockingQueue<String>();
 
     public Publisher(String id) {
         if (id.contains("\0")) {
@@ -66,7 +62,7 @@ public class Publisher extends NodePoint implements Runnable {
                 // something derped, die.
                 break;
             }
-            
+
             if (tosend != null) {
                 try {
                     socket.send(tosend, 0);

@@ -4,7 +4,7 @@
 
     <groupId>me.entityreborn</groupId>
     <artifactId>CHServerCommunication</artifactId>
-    <version>0.0.3</version>
+    <version>0.0.4</version>
     <packaging>jar</packaging>
 
     <name>CHServerCommunication</name>
@@ -155,7 +155,7 @@
         <dependency>
             <groupId>com.sk89q</groupId>
             <artifactId>commandhelper</artifactId>
-            <version>3.3.2-SNAPSHOT</version>
+            <version>3.3.4-SNAPSHOT</version>
             <type>jar</type>
         </dependency>
         

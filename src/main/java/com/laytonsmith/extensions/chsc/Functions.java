@@ -11,12 +11,11 @@ import com.entityreborn.communication.Publisher;
 import com.entityreborn.communication.Subscriber;
 import com.laytonsmith.PureUtilities.DaemonManager;
 import com.laytonsmith.annotations.api;
-import com.laytonsmith.core.CHVersion;
+import com.laytonsmith.core.MSVersion;
 import com.laytonsmith.core.constructs.CArray;
 import com.laytonsmith.core.constructs.CBoolean;
 import com.laytonsmith.core.constructs.CNull;
 import com.laytonsmith.core.constructs.CString;
-import com.laytonsmith.core.constructs.Construct;
 import com.laytonsmith.core.constructs.Target;
 import com.laytonsmith.core.environments.CommandHelperEnvironment;
 import com.laytonsmith.core.environments.Environment;
@@ -28,9 +27,7 @@ import com.laytonsmith.core.exceptions.CRE.CRENotFoundException;
 import com.laytonsmith.core.exceptions.CRE.CREThrowable;
 import com.laytonsmith.core.exceptions.ConfigRuntimeException;
 import com.laytonsmith.core.functions.AbstractFunction;
-import com.laytonsmith.core.functions.Exceptions;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.laytonsmith.core.natives.interfaces.Mixed;
 import org.zeromq.ZCert;
 import org.zeromq.ZMQ;
 import org.zeromq.ZMQException;
@@ -54,15 +51,15 @@ public class Functions {
             return null; // Don't care.
         }
 
-        public CHVersion since() {
-            return CHVersion.V3_3_1;
+        public MSVersion since() {
+            return MSVersion.V3_3_1;
         }
     }
     
     @api(environments = {CommandHelperEnvironment.class})
     public static class comm_create extends CommFunc {
-        public Construct exec(Target t, Environment environment, 
-                Construct... args) throws ConfigRuntimeException {
+        public Mixed exec(Target t, Environment environment,
+                          Mixed... args) throws ConfigRuntimeException {
             String stype = args[0].val();
             String name = args[1].val();
             int type = ZMQ.PUB;
@@ -104,8 +101,8 @@ public class Functions {
     
     @api(environments = {CommandHelperEnvironment.class})
     public static class comm_listen extends CommFunc {
-        public Construct exec(Target t, Environment environment, 
-                Construct... args) throws ConfigRuntimeException {
+        public Mixed exec(Target t, Environment environment, 
+                Mixed... args) throws ConfigRuntimeException {
             String name = args[0].val();
             String endpoint = args[1].val();
             int type = ZMQ.PUB;
@@ -160,8 +157,8 @@ public class Functions {
     
     @api(environments = {CommandHelperEnvironment.class})
     public static class comm_connect extends CommFunc {
-        public Construct exec(Target t, Environment environment, 
-                Construct... args) throws ConfigRuntimeException {
+        public Mixed exec(Target t, Environment environment, 
+                Mixed... args) throws ConfigRuntimeException {
             String name = args[0].val();
             String endpoint = args[1].val();
             int type = ZMQ.SUB;
@@ -216,8 +213,8 @@ public class Functions {
     
     @api(environments = {CommandHelperEnvironment.class})
     public static class comm_disconnect extends CommFunc {
-        public Construct exec(Target t, Environment environment, 
-                Construct... args) throws ConfigRuntimeException {
+        public Mixed exec(Target t, Environment environment, 
+                Mixed... args) throws ConfigRuntimeException {
             String name = args[0].val();
             String endpoint = args[1].val();
             int type = ZMQ.SUB;
@@ -273,8 +270,8 @@ public class Functions {
     
     @api(environments = {CommandHelperEnvironment.class})
     public static class comm_close extends CommFunc {
-        public Construct exec(Target t, Environment environment, 
-                Construct... args) throws ConfigRuntimeException {
+        public Mixed exec(Target t, Environment environment, 
+                Mixed... args) throws ConfigRuntimeException {
             String name = args[0].val();
             
             boolean found;
@@ -313,8 +310,8 @@ public class Functions {
 
     @api(environments = {CommandHelperEnvironment.class})
     public static class comm_publish extends CommFunc {
-        public Construct exec(Target t, Environment environment, 
-                Construct... args) throws ConfigRuntimeException {
+        public Mixed exec(Target t, Environment environment, 
+                Mixed... args) throws ConfigRuntimeException {
             String name = args[0].val();
             String channel = args[1].val();
             String message = args[2].val();
@@ -371,8 +368,8 @@ public class Functions {
     
     @api(environments = {CommandHelperEnvironment.class})
     public static class comm_gencert extends CommFunc {
-        public Construct exec(Target t, Environment environment, 
-                Construct... args) throws ConfigRuntimeException {
+        public Mixed exec(Target t, Environment environment, 
+                Mixed... args) throws ConfigRuntimeException {
             CArray arr = new CArray(t);
             ZCert cert = new ZCert();
             arr.set("public", cert.getPublicKeyAsZ85(), t);
@@ -395,8 +392,8 @@ public class Functions {
     
     @api(environments = {CommandHelperEnvironment.class})
     public static class comm_configsecurity extends CommFunc {
-        public Construct exec(Target t, Environment environment, 
-                Construct... args) throws ConfigRuntimeException {
+        public Mixed exec(Target t, Environment environment, 
+                Mixed... args) throws ConfigRuntimeException {
             String name = args[0].val();
             String publickey = args[1].val();
             String secretkey = args[2].val();

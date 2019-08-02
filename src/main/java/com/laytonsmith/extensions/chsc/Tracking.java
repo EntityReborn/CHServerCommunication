@@ -13,7 +13,7 @@ import com.entityreborn.communication.Util;
 import com.laytonsmith.PureUtilities.DaemonManager;
 import com.laytonsmith.PureUtilities.SimpleVersion;
 import com.laytonsmith.PureUtilities.Version;
-import com.laytonsmith.core.CHLog;
+import com.laytonsmith.core.MSLog;
 import com.laytonsmith.core.constructs.Target;
 import com.laytonsmith.core.extensions.AbstractExtension;
 import com.laytonsmith.core.extensions.MSExtension;
@@ -165,7 +165,7 @@ public class Tracking extends AbstractExtension {
             return sub;
         }
         
-        CHLog.GetLogger().i(CHLog.Tags.RUNTIME, name + " was not created!", Target.UNKNOWN);
+        MSLog.GetLogger().i(MSLog.Tags.RUNTIME, name + " was not created!", Target.UNKNOWN);
         
         return retn;
     }
@@ -190,6 +190,6 @@ public class Tracking extends AbstractExtension {
     }
 
     public Version getVersion() {
-        return new SimpleVersion(0,0,2);
+        return new SimpleVersion(0,0,4);
     }
 }

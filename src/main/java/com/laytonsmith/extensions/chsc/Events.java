@@ -7,10 +7,9 @@ package com.laytonsmith.extensions.chsc;
 import com.laytonsmith.PureUtilities.DaemonManager;
 import com.laytonsmith.abstraction.StaticLayer;
 import com.laytonsmith.annotations.api;
-import com.laytonsmith.core.CHVersion;
+import com.laytonsmith.core.MSVersion;
 import com.laytonsmith.core.constructs.CArray;
 import com.laytonsmith.core.constructs.CString;
-import com.laytonsmith.core.constructs.Construct;
 import com.laytonsmith.core.constructs.Target;
 import com.laytonsmith.core.events.AbstractEvent;
 import com.laytonsmith.core.events.BindableEvent;
@@ -19,6 +18,8 @@ import com.laytonsmith.core.events.EventUtils;
 import com.laytonsmith.core.events.Prefilters;
 import com.laytonsmith.core.exceptions.EventException;
 import com.laytonsmith.core.exceptions.PrefilterNonMatchException;
+import com.laytonsmith.core.natives.interfaces.Mixed;
+
 import java.util.Map;
 
 /**
@@ -99,7 +100,7 @@ public class Events {
                     + "{channel|publisherid|subscriberid}";
         }
 
-        public boolean matches(Map<String, Construct> prefilter, BindableEvent event)
+        public boolean matches(Map<String, Mixed> prefilter, BindableEvent event)
                 throws PrefilterNonMatchException {
             if (event instanceof RecvEvent) {
                 RecvEvent e = (RecvEvent)event;
@@ -118,12 +119,12 @@ public class Events {
             return null;
         }
 
-        public Map<String, Construct> evaluate(BindableEvent event)
+        public Map<String, Mixed> evaluate(BindableEvent event)
                 throws EventException {
             if (event instanceof RecvEvent) {
                 RecvEvent e = (RecvEvent) event;
 
-                Map<String, Construct> map = evaluate_helper(event);
+                Map<String, Mixed> map = evaluate_helper(event);
 
                 map.put("channel", new CString(e.getChannel(), Target.UNKNOWN));
                 map.put("publisherid", new CString(e.getPublisher(), Target.UNKNOWN));
@@ -140,13 +141,13 @@ public class Events {
             return Driver.EXTENSION;
         }
 
-        public boolean modifyEvent(String key, Construct value,
+        public boolean modifyEvent(String key, Mixed value,
                 BindableEvent event) {
             return false;
         }
 
-        public CHVersion since() {
-            return CHVersion.V3_3_1;
+        public MSVersion since() {
+            return MSVersion.V3_3_1;
         }
     }
 }

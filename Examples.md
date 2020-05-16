@@ -8,15 +8,11 @@ Server A's `main.ms`:
 Server A's `config.txt`:
 
     *:/publish1 $ = comm_publish('example', 'Channel1', $)
-    *:/publish2 $ = comm_publish('example', 'Channel2', $)
 
 Server B's `main.ms`:
 
     # Connect to our publisher, using a subscriber.
     comm_connect('example', 'tcp://localhost:5556')
-
-    # Subscribe to a single channel.
-    comm_subscribe('example', 'Channel1')
 
     bind('comm_received', null, null, @event,
         console(@event)
@@ -26,9 +22,6 @@ If one runs `/publish1 Testing!` on Server A, Server B will print the following
 to it's console:
 
     {channel: Channel1, event_type: comm_received, publisherid: example, macrotype: custom, message: Testing!}
-
-Calling `/publish2 Testing!` on Server A will have no affect on Server B because 
-B is not listening to `Channel2`.
 
 ## Reverse connection
 
@@ -68,9 +61,6 @@ dynamic discovery.
     # Listen on port 5557 on all interfaces, using a subscriber.
     comm_listen('Proxysub', 'tcp://*:5557', 'SUB')
 
-    # Subscribe to all channels.
-    comm_subscribe('Proxysub', '*')
-
     # Forward all messages from SUB to PUB. Only listen to communications
     # from Proxysub.
     bind('comm_received', null, array('subscriberid': 'Proxysub'), @event,
@@ -88,7 +78,6 @@ dynamic discovery.
     # ==================== Server 3 (Subscriber) =========================
     # Connect our sub to the proxy
     comm_connect('Somesub', 'tcp://localhost:5556')
-    comm_subscribe('Somesub', '*')
 
     bind('comm_received', null, array('subscriberid': 'Somesub'), @event,
         console(@event)
@@ -181,18 +170,3 @@ system: (This code is untested but in theory should work. YMMV)
 
 On Server A, calling /getplayers should return an array of players on Server B, 
 either sending the result to console or the player who called that alias.
-
-## Underlying data type
-
-CHSC by default uses a null separated string to pass it's information across the wire.
-This is being deprecated in favor of JSON, however we will leave null separated strings as the default for now.
-
-To change the type:
-
-    comm_setdatatype('ServerA', 'JSON')
-
-Valid values are `JSON` and `NULLSEPARATED`.
-
-To get the current type:
-
-    comm_getdatatype('ServerA')

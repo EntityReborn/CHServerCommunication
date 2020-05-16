@@ -216,21 +216,6 @@ public class Functions {
                 Mixed... args) throws ConfigRuntimeException {
             String name = args[0].val();
             String endpoint = args[1].val();
-            int type = ZMQ.SUB;
-            
-            if (args.length == 3) {
-                String stype = args[2].val().toUpperCase();
-
-                if (!"PUB".equals(stype) && !"SUB".equals(stype)) {
-                    throw new CRENotFoundException("You must specify PUB or SUB"
-                            + " for comm_disconnect's third argument!", t);
-                }
-
-                if ("PUB".equals(stype)) {
-                    type = ZMQ.PUB;
-                }
-            }
-            
             NodePoint node;
             
             try {
@@ -259,7 +244,7 @@ public class Functions {
         }
 
         public Integer[] numArgs() {
-            return new Integer[]{2, 3};
+            return new Integer[]{2};
         }
 
         public String docs() {
@@ -297,7 +282,7 @@ public class Functions {
         }
 
         public Integer[] numArgs() {
-            return new Integer[]{2};
+            return new Integer[]{1};
         }
 
         public String docs() {

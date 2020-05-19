@@ -4,16 +4,11 @@
 
     <groupId>me.entityreborn</groupId>
     <artifactId>CHServerCommunication</artifactId>
-    <version>0.0.4</version>
+    <version>0.0.5</version>
     <packaging>jar</packaging>
 
     <name>CHServerCommunication</name>
     <url>http://maven.apache.org</url>
-    
-    <ciManagement>
-        <system>hudson</system>
-        <url>http://build.zeoldcraft.com/job/CHServerCommunication/</url>
-    </ciManagement>
     
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -59,6 +54,13 @@
                                     </includes>
                                 </filter>
                             </filters>
+
+                            <relocations>
+                                <relocation>
+                                    <pattern>org.json.simple</pattern>
+                                    <shadedPattern>com.laytonsmith.libs.org.json.simple</shadedPattern>
+                                </relocation>
+                            </relocations>
                         </configuration>
                     </execution>
                 </executions>
@@ -138,8 +140,8 @@
     
     <repositories>
         <repository>
-            <id>sk89q-mvn2</id>
-            <url>http://mvn2.sk89q.com/repo</url>
+            <id>enginehub-repo</id>
+            <url>https://maven.enginehub.org/repo</url>
         </repository>
         
         <repository>
@@ -156,7 +158,6 @@
             <groupId>com.sk89q</groupId>
             <artifactId>commandhelper</artifactId>
             <version>3.3.4-SNAPSHOT</version>
-            <type>jar</type>
         </dependency>
         
         <dependency>

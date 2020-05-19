@@ -35,6 +35,7 @@ import org.zeromq.ZMQ;
 @MSExtension("CHServerCommunication")
 public class Tracking extends AbstractExtension {
     private static File certDir;
+    private static Version VERSION = new SimpleVersion(0,0,5);
     
     @Override
     public void onStartup() {
@@ -49,7 +50,7 @@ public class Tracking extends AbstractExtension {
             certDir.mkdirs();
         }
         
-        System.out.println("CHServerCommunication started!");
+        System.out.println("CHServerCommunication " + VERSION + " started!");
     }
     
     @Override
@@ -80,7 +81,7 @@ public class Tracking extends AbstractExtension {
             context = null;
         }
         
-        System.out.println("CHServerCommunication shut down!");
+        System.out.println("CHServerCommunication " + VERSION + " shut down!");
     }
     
     private static final Map<String, NodePoint> nodes = new HashMap<String, NodePoint>();

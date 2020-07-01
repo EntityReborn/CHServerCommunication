@@ -1,6 +1,6 @@
 # THIS EXTENSION IS HIGHLY EXPERIMENTAL! #
 
-**!!!! Latest versions require CommandHelper 3.3.4 build #3603 or later !!!!**
+**!!!! Latest versions require CommandHelper 3.3.4 build #3978 or later !!!!**
 
 While some small amount of testing has been done to verify that SOMETHING works,
 we do not take any responsibility for any damages caused by the use of this

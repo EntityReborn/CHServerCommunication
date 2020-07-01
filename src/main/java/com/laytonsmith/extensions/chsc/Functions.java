@@ -18,7 +18,7 @@ import com.laytonsmith.core.constructs.CNull;
 import com.laytonsmith.core.constructs.CString;
 import com.laytonsmith.core.constructs.Target;
 import com.laytonsmith.core.environments.Environment;
-import com.laytonsmith.core.environments.GlobalEnv;
+import com.laytonsmith.core.environments.StaticRuntimeEnv;
 import com.laytonsmith.core.exceptions.CRE.CREFormatException;
 import com.laytonsmith.core.exceptions.CRE.CREIOException;
 import com.laytonsmith.core.exceptions.CRE.CREInsufficientArgumentsException;
@@ -73,7 +73,7 @@ public class Functions {
             }
             
             NodePoint node;
-            DaemonManager daemon = environment.getEnv(GlobalEnv.class).GetDaemonManager();
+            DaemonManager daemon = environment.getEnv(StaticRuntimeEnv.class).GetDaemonManager();
             
             try {
                 node = Tracking.getOrCreate(daemon, type, name);
@@ -120,7 +120,7 @@ public class Functions {
             }
             
             NodePoint node;
-            DaemonManager daemon = environment.getEnv(GlobalEnv.class).GetDaemonManager();
+            DaemonManager daemon = environment.getEnv(StaticRuntimeEnv.class).GetDaemonManager();
             
             try {
                 node = Tracking.getOrCreate(daemon, type, name);
@@ -176,7 +176,7 @@ public class Functions {
             }
             
             NodePoint node;
-            DaemonManager daemon = environment.getEnv(GlobalEnv.class).GetDaemonManager();
+            DaemonManager daemon = environment.getEnv(StaticRuntimeEnv.class).GetDaemonManager();
             
             try {
                 node = Tracking.getOrCreate(daemon, type, name);

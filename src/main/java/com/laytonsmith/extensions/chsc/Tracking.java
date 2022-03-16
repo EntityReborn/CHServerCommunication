@@ -14,6 +14,7 @@ import com.laytonsmith.PureUtilities.DaemonManager;
 import com.laytonsmith.PureUtilities.SimpleVersion;
 import com.laytonsmith.PureUtilities.Version;
 import com.laytonsmith.core.MSLog;
+import com.laytonsmith.core.Static;
 import com.laytonsmith.core.constructs.Target;
 import com.laytonsmith.core.extensions.AbstractExtension;
 import com.laytonsmith.core.extensions.MSExtension;
@@ -22,7 +23,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.zeromq.ZAuth;
 import org.zeromq.ZCertStore;
 import org.zeromq.ZContext;
@@ -39,8 +39,7 @@ public class Tracking extends AbstractExtension {
     
     @Override
     public void onStartup() {
-        System.out.println("CHServerCommunication starting up...");
-        
+
         context = new ZContext(1);
         authentication = new ZAuth(context, new ZCertStore.Hasher());
         authentication.setVerbose(true);
@@ -49,14 +48,13 @@ public class Tracking extends AbstractExtension {
         if (!certDir.exists()) {
             certDir.mkdirs();
         }
-        
-        System.out.println("CHServerCommunication " + VERSION + " started!");
+
+        Static.getLogger().log(Level.INFO,"CHServerCommunication " + VERSION + " loaded.");
     }
     
     @Override
     public void onShutdown() {
-        System.out.println("CHServerCommunication shutting down...");
-        
+
         Set<String> keys = nodes.keySet();
         for (String key : keys) { 
             NodePoint pub = nodes.get(key);
@@ -68,7 +66,7 @@ public class Tracking extends AbstractExtension {
         try {
             Thread.sleep(1000);
         } catch (InterruptedException ex) {
-            Logger.getLogger(Tracking.class.getName()).log(Level.SEVERE, null, ex);
+            Static.getLogger().log(Level.SEVERE, null, ex);
         }
         
         if (authentication != null) {
@@ -80,8 +78,8 @@ public class Tracking extends AbstractExtension {
             context.destroy();
             context = null;
         }
-        
-        System.out.println("CHServerCommunication " + VERSION + " shut down!");
+
+        Static.getLogger().log(Level.INFO,"CHServerCommunication " + VERSION + " unloaded.");
     }
     
     private static final Map<String, NodePoint> nodes = new HashMap<String, NodePoint>();
